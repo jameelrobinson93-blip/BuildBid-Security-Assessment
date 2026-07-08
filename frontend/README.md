@@ -1,16 +1,95 @@
-# React + Vite
+# BuildBid Security Assessment Capstone
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+## Overview
 
-Currently, two official plugins are available:
+BuildBid is a full-stack contractor marketplace application developed with React, Express.js, and SQLite.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+This capstone demonstrates both secure web application development and a cybersecurity assessment. The project includes identifying common web application vulnerabilities, implementing security controls, and verifying the improvements after remediation.
 
-## React Compiler
+---
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+## Technologies Used
 
-## Expanding the ESLint configuration
+### Frontend
+- React
+- Vite
+- CSS
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+### Backend
+- Node.js
+- Express.js
+- SQLite
+
+### Security
+- Helmet
+- Express Rate Limit
+- CORS
+- OWASP ZAP
+
+---
+
+## Features
+
+- Browse contractors
+- View contractor information
+- Request project estimates
+- Responsive React interface
+- REST API backend
+- SQLite database
+
+---
+
+## Security Assessment
+
+### Vulnerabilities Identified
+
+- Missing HTTP Security Headers
+- Express Information Disclosure (`X-Powered-By`)
+- Overly Permissive CORS Policy
+
+### Security Improvements
+
+- Implemented Helmet security headers
+- Removed Express framework disclosure
+- Restricted CORS to the frontend application
+- Added API rate limiting
+
+---
+
+## Project Structure
+
+```
+BuildBid
+│
+├── backend
+├── frontend
+└── docs
+```
+
+---
+
+## Running the Project
+
+### Backend
+
+```bash
+cd backend
+npm install
+npm run dev
+```
+
+### Frontend
+
+```bash
+cd frontend
+npm install
+npm run dev
+```
+
+---
+
+## Author
+
+**Jameel Robinson**
+
+Cybersecurity Analyst | Google Cybersecurity Professional Certificate | Security+ Candidate
