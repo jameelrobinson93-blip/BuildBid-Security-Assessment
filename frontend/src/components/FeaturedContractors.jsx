@@ -6,15 +6,19 @@ function FeaturedContractors() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetch("http://localhost:5000/api/contractors")
-      .then((response) => response.json())
+    fetch(`${import.meta.env.VITE_API_URL}/api/contractors`)
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error("Failed to load contractors.");
+        }
+        return response.json();
+      })
       .then((data) => {
-  console.log(data);
-  setContractors(data);
-  setLoading(false);
-})
+        setContractors(data);
+        setLoading(false);
+      })
       .catch((error) => {
-        console.error("Error fetching contractors:", error);
+        console.error("Error loading contractors:", error);
         setLoading(false);
       });
   }, []);
@@ -23,8 +27,14 @@ function FeaturedContractors() {
     <section className="featured">
       <h2>Featured Contractors</h2>
 
+      <p className="featured-description">
+        Connect with trusted local professionals for your next home improvement project.
+      </p>
+
       {loading ? (
         <p>Loading contractors...</p>
+      ) : contractors.length === 0 ? (
+        <p>No contractors available at this time.</p>
       ) : (
         <div className="contractor-grid">
           {contractors.map((contractor) => (
