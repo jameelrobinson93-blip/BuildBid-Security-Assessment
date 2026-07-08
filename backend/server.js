@@ -4,7 +4,10 @@ const helmet = require("helmet");
 const rateLimit = require("express-rate-limit");
 
 const db = require("./database/database");
+
+// Routes
 const contractorRoutes = require("./routes/contractorRoutes");
+const authRoutes = require("./routes/authRoutes");
 
 const app = express();
 
@@ -101,17 +104,23 @@ app.use(limiter);
 // Allow React Frontend
 const allowedOrigins = [
   "http://localhost:5173",
-  "http://localhost:5174"
+  "http://localhost:5174",
+  "https://buildbid-pdbp.onrender.com"
 ];
 
 app.use(cors({
-  origin: function (origin, callback) {
+  origin(origin, callback) {
 
-    if (!origin || allowedOrigins.includes(origin)) {
-      callback(null, true);
-    } else {
-      callback(new Error("CORS Not Allowed"));
+    // Allow requests with no origin (Postman, server-to-server)
+    if (!origin) {
+      return callback(null, true);
     }
+
+    if (allowedOrigins.includes(origin)) {
+      return callback(null, true);
+    }
+
+    return callback(new Error("CORS Not Allowed"));
 
   },
   credentials: true,
@@ -125,6 +134,10 @@ app.use(express.json());
    ROUTES
 =========================== */
 
+// Authentication Routes
+app.use("/api/auth", authRoutes);
+
+// Contractor Routes
 app.use("/api/contractors", contractorRoutes);
 
 // Home Route
@@ -136,7 +149,7 @@ app.get("/", (req, res) => {
   });
 });
 
-// Database Test
+// Database Test Route
 app.get("/api/test", (req, res) => {
 
   db.all(
