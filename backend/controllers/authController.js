@@ -80,7 +80,7 @@ exports.register = async (req, res) => {
 
 exports.login = (req, res) => {
 
-  console.log("🔥 LOGIN REQUEST RECEIVED");
+  console.log("🔥 NEW LOGIN CONTROLLER IS RUNNING");
 
   const { email, password } = req.body;
 
@@ -109,10 +109,7 @@ exports.login = (req, res) => {
 
     try {
 
-      const passwordMatch = await bcrypt.compare(
-        password,
-        user.password
-      );
+      const passwordMatch = await bcrypt.compare(password, user.password);
 
       if (!passwordMatch) {
         return res.status(401).json({
@@ -133,9 +130,9 @@ exports.login = (req, res) => {
         }
       );
 
-      res.status(200).json({
+      return res.status(200).json({
         success: true,
-        message: "Login successful!",
+        message: "THIS IS THE NEW LOGIN CONTROLLER",
         token,
         user: {
           id: user.id,
@@ -148,7 +145,7 @@ exports.login = (req, res) => {
 
     } catch (error) {
 
-      res.status(500).json({
+      return res.status(500).json({
         success: false,
         message: "Login failed."
       });
