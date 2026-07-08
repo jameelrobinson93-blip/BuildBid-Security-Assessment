@@ -2,47 +2,159 @@ const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const userModel = require("../models/userModel");
 
-// REGISTER
+/* ===========================
+   REGISTER
+=========================== */
+
 exports.register = async (req, res) => {
+
   const { firstName, lastName, email, password } = req.body;
 
   if (!firstName || !lastName || !email || !password) {
     return res.status(400).json({
-      message: "Please complete all fields.",
+      success: false,
+      message: "Please fill in all fields."
     });
   }
 
   userModel.findUserByEmail(email, async (err, existingUser) => {
-    if (err) return res.status(500).json(err);
 
-    if (existingUser) {
-      return res.status(400).json({
-        message: "Email already exists.",
+    if (err) {
+      return res.status(500).json({
+        success: false,
+        message: "Server error."
       });
     }
 
-    const hashedPassword = await bcrypt.hash(password, 10);
+    if (existingUser) {
+      return res.status(400).json({
+        success: false,
+        message: "Email already exists."
+      });
+    }
 
-    userModel.createUser(
-      firstName,
-      lastName,
-      email,
-      hashedPassword,
-      "customer",
-      (err) => {
-        if (err) return res.status(500).json(err);
+    try {
 
-        res.status(201).json({
-          message: "Account created successfully!",
-        });
-      }
-    );
+      const hashedPassword = await bcrypt.hash(password, 10);
+
+      userModel.createUser(
+        firstName,
+        lastName,
+        email,
+        hashedPassword,
+        "customer",
+        (err) => {
+
+          if (err) {
+            return res.status(500).json({
+              success: false,
+              message: "Unable to create account."
+            });
+          }
+
+          res.status(201).json({
+            success: true,
+            message: "Account created successfully!"
+          });
+
+        }
+      );
+
+    } catch (error) {
+
+      res.status(500).json({
+        success: false,
+        message: "Server error."
+      });
+
+    }
+
   });
+
 };
 
-// LOGIN (we'll complete this next)
+
+/* ===========================
+   LOGIN
+=========================== */
+
 exports.login = (req, res) => {
-  res.json({
-    message: "Login endpoint coming next...",
+
+  console.log("🔥 LOGIN REQUEST RECEIVED");
+
+  const { email, password } = req.body;
+
+  if (!email || !password) {
+    return res.status(400).json({
+      success: false,
+      message: "Email and password are required."
+    });
+  }
+
+  userModel.findUserByEmail(email, async (err, user) => {
+
+    if (err) {
+      return res.status(500).json({
+        success: false,
+        message: "Server error."
+      });
+    }
+
+    if (!user) {
+      return res.status(401).json({
+        success: false,
+        message: "Invalid email or password."
+      });
+    }
+
+    try {
+
+      const passwordMatch = await bcrypt.compare(
+        password,
+        user.password
+      );
+
+      if (!passwordMatch) {
+        return res.status(401).json({
+          success: false,
+          message: "Invalid email or password."
+        });
+      }
+
+      const token = jwt.sign(
+        {
+          id: user.id,
+          email: user.email,
+          role: user.role
+        },
+        "buildbid_secret_key",
+        {
+          expiresIn: "1h"
+        }
+      );
+
+      res.status(200).json({
+        success: true,
+        message: "Login successful!",
+        token,
+        user: {
+          id: user.id,
+          firstName: user.first_name,
+          lastName: user.last_name,
+          email: user.email,
+          role: user.role
+        }
+      });
+
+    } catch (error) {
+
+      res.status(500).json({
+        success: false,
+        message: "Login failed."
+      });
+
+    }
+
   });
+
 };
