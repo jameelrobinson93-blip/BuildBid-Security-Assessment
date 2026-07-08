@@ -9,9 +9,10 @@ function FeaturedContractors() {
     fetch("http://localhost:5000/api/contractors")
       .then((response) => response.json())
       .then((data) => {
-        setContractors(data);
-        setLoading(false);
-      })
+  console.log(data);
+  setContractors(data);
+  setLoading(false);
+})
       .catch((error) => {
         console.error("Error fetching contractors:", error);
         setLoading(false);
