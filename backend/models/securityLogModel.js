@@ -9,7 +9,20 @@ function logEvent(email, status, ip, callback) {
     VALUES (?, ?, ?)
     `,
     [email, status, ip],
-    callback
+    function (err) {
+
+      if (err) {
+        console.log("❌ SECURITY LOG ERROR");
+        console.log(err);
+      } else {
+        console.log("✅ Security event saved:", status, email);
+      }
+
+      if (callback) {
+        callback(err);
+      }
+
+    }
   );
 
 }
