@@ -1,6 +1,9 @@
 const db = require("../database/database");
 
-// Create a new user
+/* ===========================
+   CREATE USER
+=========================== */
+
 function createUser(firstName, lastName, email, password, role, callback) {
 
   const sql = `
@@ -19,7 +22,10 @@ function createUser(firstName, lastName, email, password, role, callback) {
 
 }
 
-// Find user by email
+/* ===========================
+   FIND USER
+=========================== */
+
 function findUserByEmail(email, callback) {
 
   db.get(
@@ -32,7 +38,66 @@ function findUserByEmail(email, callback) {
 
 }
 
+/* ===========================
+   UPDATE FAILED ATTEMPTS
+=========================== */
+
+function updateFailedAttempts(userId, attempts, callback) {
+
+  db.run(
+    `
+    UPDATE users
+    SET failed_attempts = ?
+    WHERE id = ?
+    `,
+    [attempts, userId],
+    callback
+  );
+
+}
+
+/* ===========================
+   LOCK ACCOUNT
+=========================== */
+
+function lockAccount(userId, lockedUntil, callback) {
+
+  db.run(
+    `
+    UPDATE users
+    SET locked_until = ?
+    WHERE id = ?
+    `,
+    [lockedUntil, userId],
+    callback
+  );
+
+}
+
+/* ===========================
+   RESET LOGIN ATTEMPTS
+=========================== */
+
+function resetLoginAttempts(userId, callback) {
+
+  db.run(
+    `
+    UPDATE users
+    SET
+      failed_attempts = 0,
+      locked_until = 0
+    WHERE id = ?
+    `,
+    [userId],
+    callback
+  );
+
+}
+
 module.exports = {
   createUser,
-  findUserByEmail
+  findUserByEmail,
+  updateFailedAttempts,
+  lockAccount,
+  resetLoginAttempts
 };

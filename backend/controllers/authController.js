@@ -33,54 +33,40 @@ exports.register = async (req, res) => {
       });
     }
 
-    try {
+    const hashedPassword = await bcrypt.hash(password, 10);
 
-      const hashedPassword = await bcrypt.hash(password, 10);
+    userModel.createUser(
+      firstName,
+      lastName,
+      email,
+      hashedPassword,
+      "customer",
+      (err) => {
 
-      userModel.createUser(
-        firstName,
-        lastName,
-        email,
-        hashedPassword,
-        "customer",
-        (err) => {
-
-          if (err) {
-            return res.status(500).json({
-              success: false,
-              message: "Unable to create account."
-            });
-          }
-
-          res.status(201).json({
-            success: true,
-            message: "Account created successfully!"
+        if (err) {
+          return res.status(500).json({
+            success: false,
+            message: "Unable to create account."
           });
-
         }
-      );
 
-    } catch (error) {
+        res.status(201).json({
+          success: true,
+          message: "Account created successfully!"
+        });
 
-      res.status(500).json({
-        success: false,
-        message: "Server error."
-      });
-
-    }
+      }
+    );
 
   });
 
 };
-
 
 /* ===========================
    LOGIN
 =========================== */
 
 exports.login = (req, res) => {
-
-  console.log("🔥 NEW LOGIN CONTROLLER IS RUNNING");
 
   const { email, password } = req.body;
 
@@ -101,56 +87,109 @@ exports.login = (req, res) => {
     }
 
     if (!user) {
+
+      console.log("❌ Unknown user attempted login:", email);
+
       return res.status(401).json({
         success: false,
         message: "Invalid email or password."
       });
+
     }
 
-    try {
+    const now = Date.now();
 
-      const passwordMatch = await bcrypt.compare(password, user.password);
+    // Check if account is locked
+    if (user.locked_until && user.locked_until > now) {
 
-      if (!passwordMatch) {
-        return res.status(401).json({
+      console.log("🚨 ACCOUNT LOCKED");
+      console.log("User:", email);
+
+      return res.status(423).json({
+        success: false,
+        message: "Account locked. Try again in 5 minutes."
+      });
+
+    }
+
+    const passwordMatch = await bcrypt.compare(
+      password,
+      user.password
+    );
+
+    if (!passwordMatch) {
+
+      const attempts = (user.failed_attempts || 0) + 1;
+
+      console.log("");
+      console.log("========== LOGIN FAILURE ==========");
+      console.log("User:", email);
+      console.log("Attempt:", attempts);
+      console.log("Time:", new Date().toLocaleString());
+
+      userModel.updateFailedAttempts(user.id, attempts, () => {});
+
+      if (attempts >= 5) {
+
+        const lockUntil = now + (5 * 60 * 1000);
+
+        userModel.lockAccount(user.id, lockUntil, () => {});
+
+        console.log("");
+        console.log("🚨 SECURITY ALERT 🚨");
+        console.log("Possible Brute Force Attack");
+        console.log("Account Locked");
+        console.log("User:", email);
+        console.log("==============================");
+
+        return res.status(423).json({
           success: false,
-          message: "Invalid email or password."
+          message: "Too many failed login attempts. Account locked for 5 minutes."
         });
+
       }
 
-      const token = jwt.sign(
-        {
-          id: user.id,
-          email: user.email,
-          role: user.role
-        },
-        "buildbid_secret_key",
-        {
-          expiresIn: "1h"
-        }
-      );
-
-      return res.status(200).json({
-        success: true,
-        message: "THIS IS THE NEW LOGIN CONTROLLER",
-        token,
-        user: {
-          id: user.id,
-          firstName: user.first_name,
-          lastName: user.last_name,
-          email: user.email,
-          role: user.role
-        }
-      });
-
-    } catch (error) {
-
-      return res.status(500).json({
+      return res.status(401).json({
         success: false,
-        message: "Login failed."
+        message: `Invalid email or password. (${attempts}/5 attempts)`
       });
 
     }
+
+    // Successful login
+
+    userModel.resetLoginAttempts(user.id, () => {});
+
+    console.log("");
+    console.log("========== LOGIN SUCCESS ==========");
+    console.log("User:", email);
+    console.log("Time:", new Date().toLocaleString());
+    console.log("===================================");
+
+    const token = jwt.sign(
+      {
+        id: user.id,
+        email: user.email,
+        role: user.role
+      },
+      "buildbid_secret_key",
+      {
+        expiresIn: "1h"
+      }
+    );
+
+    res.json({
+      success: true,
+      message: "Login successful!",
+      token,
+      user: {
+        id: user.id,
+        firstName: user.first_name,
+        lastName: user.last_name,
+        email: user.email,
+        role: user.role
+      }
+    });
 
   });
 
