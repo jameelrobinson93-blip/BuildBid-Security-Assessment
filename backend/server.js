@@ -54,26 +54,26 @@ db.serialize(() => {
     )
   `);
 
-  // SAMPLE CONTRACTORS
+  // Sample Contractors
   db.run(`
     INSERT OR IGNORE INTO contractors
     (id, company, specialty, city, phone, rating)
     VALUES
-    (1, 'Mike''s Construction', 'Kitchen Remodeling', 'Paterson', '973-555-1001', 4.9)
+    (1,'Mike''s Construction','Kitchen Remodeling','Paterson','973-555-1001',4.9)
   `);
 
   db.run(`
     INSERT OR IGNORE INTO contractors
     (id, company, specialty, city, phone, rating)
     VALUES
-    (2, 'Elite Roofing', 'Roof Repair', 'Clifton', '973-555-2002', 4.8)
+    (2,'Elite Roofing','Roof Repair','Clifton','973-555-2002',4.8)
   `);
 
   db.run(`
     INSERT OR IGNORE INTO contractors
     (id, company, specialty, city, phone, rating)
     VALUES
-    (3, 'Garden State Plumbing', 'Plumbing', 'Newark', '973-555-3003', 5.0)
+    (3,'Garden State Plumbing','Plumbing','Newark','973-555-3003',5.0)
   `);
 
 });
@@ -82,13 +82,10 @@ db.serialize(() => {
    SECURITY
 =========================== */
 
-// Hide Express
 app.disable("x-powered-by");
 
-// Helmet Security
 app.use(helmet());
 
-// Rate Limiting
 const limiter = rateLimit({
   windowMs: 15 * 60 * 1000,
   max: 100,
@@ -101,7 +98,6 @@ const limiter = rateLimit({
 
 app.use(limiter);
 
-// Allow React Frontend
 const allowedOrigins = [
   "http://localhost:5173",
   "http://localhost:5174",
@@ -109,51 +105,72 @@ const allowedOrigins = [
 ];
 
 app.use(cors({
-  origin(origin, callback) {
+  origin: function (origin, callback) {
 
-    // Allow requests with no origin (Postman, server-to-server)
-    if (!origin) {
-      return callback(null, true);
+    if (!origin || allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error("CORS Not Allowed"));
     }
-
-    if (allowedOrigins.includes(origin)) {
-      return callback(null, true);
-    }
-
-    return callback(new Error("CORS Not Allowed"));
 
   },
   credentials: true,
   methods: ["GET", "POST", "PUT", "DELETE"]
 }));
 
-// Parse JSON
 app.use(express.json());
 
 /* ===========================
    ROUTES
 =========================== */
 
-// Authentication Routes
 app.use("/api/auth", authRoutes);
-
-// Contractor Routes
 app.use("/api/contractors", contractorRoutes);
 
-// Home Route
+/* ===========================
+   HOME
+=========================== */
+
 app.get("/", (req, res) => {
+
   res.json({
     project: "BuildBid",
     status: "API Running",
     version: "1.0"
   });
+
 });
 
-// Database Test Route
+/* ===========================
+   DATABASE TEST
+=========================== */
+
 app.get("/api/test", (req, res) => {
 
   db.all(
     "SELECT name FROM sqlite_master WHERE type='table'",
+    [],
+    (err, rows) => {
+
+      if (err) {
+        return res.status(500).json(err);
+      }
+
+      res.json(rows);
+
+    }
+  );
+
+});
+
+/* ===========================
+   TEMPORARY USERS ROUTE
+=========================== */
+
+app.get("/api/users", (req, res) => {
+
+  db.all(
+    "SELECT id, first_name, last_name, email, role FROM users",
     [],
     (err, rows) => {
 
@@ -175,5 +192,7 @@ app.get("/api/test", (req, res) => {
 const PORT = process.env.PORT || 5000;
 
 app.listen(PORT, () => {
+
   console.log(`✅ BuildBid Server running on http://localhost:${PORT}`);
+
 });
