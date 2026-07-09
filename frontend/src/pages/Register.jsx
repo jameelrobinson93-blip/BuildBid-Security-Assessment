@@ -1,4 +1,5 @@
 import { useState } from "react";
+import API_URL from "../config.js";
 
 function Register() {
 
@@ -10,30 +11,52 @@ function Register() {
   });
 
   function handleChange(e) {
+
     setForm({
       ...form,
       [e.target.name]: e.target.value
     });
+
   }
 
-  async function handleSubmit() {
+  async function handleRegister() {
 
-    const response = await fetch(
-      `${import.meta.env.VITE_API_URL}/api/auth/register`,
-      {
-        method: "POST",
+    try {
 
-        headers: {
-          "Content-Type": "application/json"
-        },
+      const response = await fetch(
+        `${API_URL}/api/auth/register`,
+        {
+          method: "POST",
 
-        body: JSON.stringify(form)
+          headers: {
+            "Content-Type": "application/json"
+          },
+
+          body: JSON.stringify(form)
+        }
+      );
+
+      const data = await response.json();
+
+      if (data.success) {
+
+        alert("Account created successfully!");
+
+        window.location.href = "/login";
+
+      } else {
+
+        alert(data.message);
+
       }
-    );
 
-    const data = await response.json();
+    } catch (error) {
 
-    alert(data.message);
+      console.error(error);
+
+      alert("Unable to connect to the server.");
+
+    }
 
   }
 
@@ -44,6 +67,7 @@ function Register() {
       <h1>Create Account</h1>
 
       <input
+        type="text"
         name="firstName"
         placeholder="First Name"
         onChange={handleChange}
@@ -52,6 +76,7 @@ function Register() {
       <br /><br />
 
       <input
+        type="text"
         name="lastName"
         placeholder="Last Name"
         onChange={handleChange}
@@ -60,8 +85,8 @@ function Register() {
       <br /><br />
 
       <input
-        name="email"
         type="email"
+        name="email"
         placeholder="Email"
         onChange={handleChange}
       />
@@ -69,15 +94,15 @@ function Register() {
       <br /><br />
 
       <input
-        name="password"
         type="password"
+        name="password"
         placeholder="Password"
         onChange={handleChange}
       />
 
       <br /><br />
 
-      <button onClick={handleSubmit}>
+      <button onClick={handleRegister}>
         Create Account
       </button>
 

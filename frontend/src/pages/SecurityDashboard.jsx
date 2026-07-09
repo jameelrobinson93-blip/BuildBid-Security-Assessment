@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import "./SecurityDashboard.css";
+import API_URL from "../config.js";
 
 function SecurityDashboard() {
 
@@ -22,8 +23,8 @@ const locked = logs.filter(
     try {
 
       const response = await fetch(
-        `${import.meta.env.VITE_API_URL}/api/security/logs`
-      );
+  `${API_URL}/api/security/logs`
+);
 
       const data = await response.json();
 

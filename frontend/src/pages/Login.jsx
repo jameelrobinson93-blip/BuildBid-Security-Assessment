@@ -1,4 +1,5 @@
 import { useState } from "react";
+import API_URL from "../config.js";
 
 function Login() {
 
@@ -8,43 +9,60 @@ function Login() {
   });
 
   function handleChange(e) {
+
     setForm({
       ...form,
       [e.target.name]: e.target.value
     });
+
   }
 
   async function handleLogin() {
 
-    const response = await fetch(
-      `${import.meta.env.VITE_API_URL}/api/auth/login`,
-      {
-        method: "POST",
+    try {
 
-        headers: {
-          "Content-Type": "application/json"
-        },
+      const response = await fetch(
+        `${API_URL}/api/auth/login`,
+        {
+          method: "POST",
 
-        body: JSON.stringify(form)
-      }
-    );
+          headers: {
+            "Content-Type": "application/json"
+          },
 
-    const data = await response.json();
-
-    if (data.success) {
-
-      localStorage.setItem(
-        "token",
-        data.token
+          body: JSON.stringify(form)
+        }
       );
 
-      alert("Login Successful!");
+      const data = await response.json();
 
-      console.log(data);
+      if (data.success) {
 
-    } else {
+        localStorage.setItem(
+          "token",
+          data.token
+        );
 
-      alert(data.message);
+        localStorage.setItem(
+          "user",
+          JSON.stringify(data.user)
+        );
+
+        alert("Login Successful!");
+
+        window.location.href = "/";
+
+      } else {
+
+        alert(data.message);
+
+      }
+
+    } catch (error) {
+
+      console.error(error);
+
+      alert("Unable to connect to the server.");
 
     }
 
@@ -60,6 +78,7 @@ function Login() {
         type="email"
         name="email"
         placeholder="Email"
+        value={form.email}
         onChange={handleChange}
       />
 
@@ -69,6 +88,7 @@ function Login() {
         type="password"
         name="password"
         placeholder="Password"
+        value={form.password}
         onChange={handleChange}
       />
 
