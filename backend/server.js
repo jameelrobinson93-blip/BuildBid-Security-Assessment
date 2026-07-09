@@ -4,6 +4,7 @@ const helmet = require("helmet");
 const rateLimit = require("express-rate-limit");
 
 const db = require("./database/database");
+const securityRoutes = require("./routes/securityRoutes");
 
 // Routes
 const contractorRoutes = require("./routes/contractorRoutes");
@@ -60,6 +61,17 @@ db.run("ALTER TABLE users ADD COLUMN locked_until INTEGER DEFAULT 0", () => {});
       status TEXT
     )
   `);
+
+  // SECURITY LOGS TABLE
+db.run(`
+  CREATE TABLE IF NOT EXISTS security_logs (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    email TEXT,
+    status TEXT,
+    ip_address TEXT,
+    event_time DATETIME DEFAULT CURRENT_TIMESTAMP
+  )
+`);
 
   // Sample Contractors
   db.run(`
@@ -133,6 +145,7 @@ app.use(express.json());
 
 app.use("/api/auth", authRoutes);
 app.use("/api/contractors", contractorRoutes);
+app.use("/api/security", securityRoutes);
 
 /* ===========================
    HOME

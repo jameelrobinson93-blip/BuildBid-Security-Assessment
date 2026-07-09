@@ -1,3 +1,4 @@
+const securityLog = require("../models/securityLogModel");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const userModel = require("../models/userModel");
@@ -142,6 +143,12 @@ exports.login = (req, res) => {
         console.log("User:", email);
         console.log("==============================");
 
+        securityLog.logEvent(
+    email,
+    "LOCKED",
+    req.ip,
+    () => {}
+);
         return res.status(423).json({
           success: false,
           message: "Too many failed login attempts. Account locked for 5 minutes."
@@ -149,6 +156,12 @@ exports.login = (req, res) => {
 
       }
 
+      securityLog.logEvent(
+    email,
+    "FAILED",
+    req.ip,
+    () => {}
+);
       return res.status(401).json({
         success: false,
         message: `Invalid email or password. (${attempts}/5 attempts)`
@@ -166,6 +179,12 @@ exports.login = (req, res) => {
     console.log("Time:", new Date().toLocaleString());
     console.log("===================================");
 
+    securityLog.logEvent(
+    email,
+    "SUCCESS",
+    req.ip,
+    () => {}
+);
     const token = jwt.sign(
       {
         id: user.id,
