@@ -18,16 +18,23 @@ const app = express();
 db.serialize(() => {
 
   // USERS TABLE
-  db.run(`
-    CREATE TABLE IF NOT EXISTS users (
-      id INTEGER PRIMARY KEY AUTOINCREMENT,
-      first_name TEXT,
-      last_name TEXT,
-      email TEXT UNIQUE,
-      password TEXT,
-      role TEXT
-    )
-  `);
+db.run(`
+  CREATE TABLE IF NOT EXISTS users (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    first_name TEXT,
+    last_name TEXT,
+    email TEXT UNIQUE,
+    password TEXT,
+    role TEXT,
+
+    failed_attempts INTEGER DEFAULT 0,
+    locked_until INTEGER DEFAULT 0
+  )
+`);
+
+// Add brute-force protection columns for existing databases
+db.run("ALTER TABLE users ADD COLUMN failed_attempts INTEGER DEFAULT 0", () => {});
+db.run("ALTER TABLE users ADD COLUMN locked_until INTEGER DEFAULT 0", () => {});
 
   // CONTRACTORS TABLE
   db.run(`
