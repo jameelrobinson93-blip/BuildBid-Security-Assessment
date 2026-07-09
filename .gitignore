@@ -1,0 +1,18 @@
+# Node modules
+node_modules/
+backend/node_modules/
+frontend/node_modules/
+
+# Environment files
+backend/.env
+frontend/.env
+
+# SQLite database
+backend/database/buildbid.db
+
+# Logs
+*.log
+
+# OS files
+.DS_Store
+Thumbs.db
