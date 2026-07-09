@@ -190,7 +190,7 @@ app.get("/api/test", (req, res) => {
 app.get("/api/users", (req, res) => {
 
   db.all(
-    "SELECT id, first_name, last_name, email, role FROM users",
+    "SELECT * FROM users",
     [],
     (err, rows) => {
 

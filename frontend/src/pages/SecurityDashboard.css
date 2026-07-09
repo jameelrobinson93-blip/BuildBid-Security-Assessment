@@ -1,0 +1,76 @@
+.page {
+  padding: 40px;
+  background: #f4f7fb;
+  min-height: 100vh;
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+h1 {
+  text-align: center;
+  margin-bottom: 30px;
+  color: #1f2937;
+}
+
+.stats {
+  display: flex;
+  justify-content: center;
+  gap: 25px;
+  margin-bottom: 40px;
+  flex-wrap: wrap;
+}
+
+.card {
+  width: 230px;
+  padding: 25px;
+  border-radius: 12px;
+  color: white;
+  text-align: center;
+  box-shadow: 0 5px 15px rgba(0,0,0,.15);
+}
+
+.card h2 {
+  font-size: 42px;
+  margin: 0;
+}
+
+.card p {
+  margin-top: 10px;
+  font-size: 18px;
+}
+
+.success {
+  background: #2ecc71;
+}
+
+.failed {
+  background: #e74c3c;
+}
+
+.locked {
+  background: #f39c12;
+}
+
+table {
+  width: 100%;
+  background: white;
+  border-collapse: collapse;
+  border-radius: 10px;
+  overflow: hidden;
+  box-shadow: 0 5px 15px rgba(0,0,0,.1);
+}
+
+th {
+  background: #34495e;
+  color: white;
+  padding: 15px;
+  text-align: left;
+}
+
+td {
+  padding: 15px;
+  border-bottom: 1px solid #ddd;
+}
+
+tr:hover {
+  background: #f8f9fa;
+}

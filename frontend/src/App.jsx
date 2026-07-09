@@ -1,5 +1,6 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 
+import SecurityDashboard from "./pages/SecurityDashboard";
 import Navbar from "./components/Navbar";
 
 import Home from "./pages/Home";
@@ -24,6 +25,10 @@ function App() {
     <Route path="/estimate" element={<RequestEstimate />} />
     <Route path="/login" element={<Login />} />
     <Route path="/register" element={<Register />} />
+    <Route
+  path="/security"
+  element={<SecurityDashboard />}
+/>
   </Routes>
 </BrowserRouter>
   );
