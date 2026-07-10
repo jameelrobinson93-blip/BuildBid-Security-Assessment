@@ -3,6 +3,7 @@ const cors = require("cors");
 const helmet = require("helmet");
 const rateLimit = require("express-rate-limit");
 const reviewRoutes = require("./routes/reviewRoutes");
+const dashboardRoutes = require("./routes/dashboardRoutes");
 
 const db = require("./database/database");
 const securityRoutes = require("./routes/securityRoutes");
@@ -159,6 +160,7 @@ app.use("/api/auth", authRoutes);
 app.use("/api/contractors", contractorRoutes);
 app.use("/api/security", securityRoutes);
 app.use("/api/reviews", reviewRoutes);
+app.use("/api/dashboard", dashboardRoutes);
 
 /* ===========================
    HOME

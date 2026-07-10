@@ -1,28 +1,76 @@
-import { Link } from "react-router-dom";
+import { NavLink } from "react-router-dom";
+import {
+  FaHome,
+  FaSearch,
+  FaClipboardList,
+  FaStar,
+  FaShieldAlt,
+  FaInfoCircle,
+  FaSignInAlt,
+  FaUserPlus
+} from "react-icons/fa";
+
+import Logo from "./Logo";
+import "./Navbar.css";
 
 function Navbar() {
   return (
     <nav className="navbar">
-      <div className="logo">🏗️ BuildBid</div>
+
+      <Logo />
 
       <ul className="nav-links">
-    <li><Link to="/">Home</Link></li>
 
-    <li><Link to="/search">Find Contractors</Link></li>
+        <li>
+          <NavLink to="/">
+            <FaHome /> Home
+          </NavLink>
+        </li>
 
-    <li><Link to="/about">About</Link></li>
+        <li>
+          <NavLink to="/search">
+            <FaSearch /> Contractors
+          </NavLink>
+        </li>
 
-    <li><Link to="/how-it-works">How It Works</Link></li>
+        <li>
+          <NavLink to="/estimate">
+            <FaClipboardList /> Estimates
+          </NavLink>
+        </li>
 
-    <li><Link to="/estimate">Request Estimate</Link></li>
-</ul>
+        <li>
+          <NavLink to="/reviews">
+            <FaStar /> Reviews
+          </NavLink>
+        </li>
 
-      <div className="auth-links">
-        <Link to="/login">Login</Link>
-        <Link to="/register" className="register-btn">
-          Register
-        </Link>
+        <li>
+          <NavLink to="/security">
+            <FaShieldAlt /> Security
+          </NavLink>
+        </li>
+
+        <li>
+          <NavLink to="/about">
+            <FaInfoCircle /> About
+          </NavLink>
+        </li>
+
+      </ul>
+
+      <div className="nav-auth">
+
+        <NavLink to="/login" className="login-btn">
+          <FaSignInAlt /> Login
+        </NavLink>
+
+        <NavLink to="/register" className="register-btn">
+          <FaUserPlus /> Register
+        </NavLink>
+
       </div>
+
     </nav>
   );
 }
