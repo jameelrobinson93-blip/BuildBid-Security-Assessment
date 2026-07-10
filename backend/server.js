@@ -2,6 +2,7 @@ const express = require("express");
 const cors = require("cors");
 const helmet = require("helmet");
 const rateLimit = require("express-rate-limit");
+const reviewRoutes = require("./routes/reviewRoutes");
 
 const db = require("./database/database");
 const securityRoutes = require("./routes/securityRoutes");
@@ -61,6 +62,17 @@ db.run("ALTER TABLE users ADD COLUMN locked_until INTEGER DEFAULT 0", () => {});
       status TEXT
     )
   `);
+
+  // REVIEWS TABLE
+db.run(`
+  CREATE TABLE IF NOT EXISTS reviews (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    name TEXT NOT NULL,
+    rating INTEGER NOT NULL,
+    comment TEXT NOT NULL,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+  )
+`);
 
   // SECURITY LOGS TABLE
 db.run(`
@@ -146,6 +158,7 @@ app.use(express.json());
 app.use("/api/auth", authRoutes);
 app.use("/api/contractors", contractorRoutes);
 app.use("/api/security", securityRoutes);
+app.use("/api/reviews", reviewRoutes);
 
 /* ===========================
    HOME

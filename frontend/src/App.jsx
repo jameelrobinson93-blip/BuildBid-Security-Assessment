@@ -10,6 +10,7 @@ import Login from "./pages/Login";
 import Register from "./pages/Register";
 import RequestEstimate from "./pages/RequestEstimate";
 import Search from "./pages/Search";
+import Reviews from "./pages/Reviews";
 import "./App.css";
 
 function App() {
@@ -28,7 +29,12 @@ function App() {
     <Route
   path="/security"
   element={<SecurityDashboard />}
+  />
+  <Route
+  path="/reviews"
+  element={<Reviews />}
 />
+
   </Routes>
 </BrowserRouter>
   );
