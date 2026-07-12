@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import API_URL from "../config.js";
+import "./Reviews.css";
 
 function Reviews() {
 
@@ -83,11 +84,24 @@ function Reviews() {
 
   }
 
-  return (
+return (
 
-    <div className="page">
+  <div className="reviews-page">
 
-      <h1>Customer Reviews</h1>
+    <div className="reviews-header">
+
+      <h1>Homeowner Reviews</h1>
+
+      <p>
+        Read what homeowners are saying about their BuildBid experience,
+        or leave a review after your project is complete.
+      </p>
+
+    </div>
+
+    <div className="review-form">
+
+      <h2>Leave a Review</h2>
 
       <input
         name="name"
@@ -96,86 +110,66 @@ function Reviews() {
         onChange={handleChange}
       />
 
-      <br /><br />
-
       <select
         name="rating"
         value={form.rating}
         onChange={handleChange}
       >
-
         <option value="5">★★★★★</option>
         <option value="4">★★★★☆</option>
         <option value="3">★★★☆☆</option>
         <option value="2">★★☆☆☆</option>
         <option value="1">★☆☆☆☆</option>
-
       </select>
-
-      <br /><br />
 
       <textarea
         name="comment"
-        rows="5"
-        cols="60"
-        placeholder="Write your review..."
+        rows="6"
+        placeholder="Tell us about your experience..."
         value={form.comment}
         onChange={handleChange}
       />
-
-      <br /><br />
 
       <button onClick={submitReview}>
         Submit Review
       </button>
 
-      <hr />
+    </div>
 
-      <h2>Recent Reviews</h2>
+    <div className="reviews-grid">
 
-      {
+      {reviews.map((review) => (
 
-        reviews.map((review) => (
+        <div
+          className="review-card"
+          key={review.id}
+        >
 
-          <div
-            key={review.id}
-            style={{
-              border:"1px solid #ddd",
-              padding:"15px",
-              marginBottom:"15px",
-              borderRadius:"8px"
-            }}
-          >
+          <div className="review-stars">
 
-            <h3>{review.name}</h3>
-
-            <p>
-
-              Rating: {"★".repeat(review.rating)}
-
-            </p>
-
-            <p>
-
-              {review.comment}
-
-            </p>
-
-            <small>
-
-              {review.created_at}
-
-            </small>
+            {"★".repeat(review.rating)}
 
           </div>
 
-        ))
+          <p className="review-comment">
 
-      }
+            "{review.comment}"
+
+          </p>
+
+          <h3>{review.name}</h3>
+
+          <small>{review.created_at}</small>
+
+        </div>
+
+      ))}
 
     </div>
 
-  );
+  </div>
+
+);
 
 }
 

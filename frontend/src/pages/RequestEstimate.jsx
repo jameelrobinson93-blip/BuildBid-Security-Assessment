@@ -1,3 +1,4 @@
+import "./RequestEstimate.css";
 import { useState } from "react";
 
 function RequestEstimate() {
@@ -30,7 +31,14 @@ function RequestEstimate() {
   return (
     <div className="estimate-page">
 
-      <h1>Request a Free Estimate</h1>
+      <>
+  <h1>Start Your Home Project</h1>
+
+  <p>
+    Tell us about your project and we'll help you connect
+    with trusted local professionals in your area.
+  </p>
+</>
 
       <form onSubmit={handleSubmit}>
 

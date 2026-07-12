@@ -1,0 +1,129 @@
+.about-page{
+
+    max-width:1400px;
+
+    margin:140px auto;
+
+    padding:0 40px;
+
+}
+
+.about-hero{
+
+    text-align:center;
+
+    margin-bottom:90px;
+
+}
+
+.about-badge{
+
+    display:inline-block;
+
+    padding:10px 18px;
+
+    border-radius:999px;
+
+    background:rgba(37,99,235,.15);
+
+    color:#60A5FA;
+
+    font-weight:600;
+
+    margin-bottom:25px;
+
+}
+
+.about-hero h1{
+
+    font-size:68px;
+
+    max-width:900px;
+
+    margin:auto;
+
+    color:var(--text);
+
+    line-height:1.1;
+
+}
+
+.about-hero p{
+
+    max-width:750px;
+
+    margin:35px auto 0;
+
+    color:var(--text-light);
+
+    font-size:20px;
+
+    line-height:1.8;
+
+}
+
+.about-grid{
+
+    display:grid;
+
+    grid-template-columns:repeat(auto-fit,minmax(320px,1fr));
+
+    gap:30px;
+
+}
+
+.about-card{
+
+    background:var(--bg-light);
+
+    border:1px solid var(--border);
+
+    border-radius:24px;
+
+    padding:40px;
+
+    box-shadow:var(--shadow-md);
+
+    transition:.35s;
+
+}
+
+.about-card:hover{
+
+    transform:translateY(-8px);
+
+    box-shadow:var(--shadow-lg);
+
+}
+
+.about-card h2{
+
+    color:white;
+
+    margin-bottom:20px;
+
+}
+
+.about-card p{
+
+    color:var(--text-light);
+
+    line-height:1.8;
+
+}
+
+@media(max-width:768px){
+
+.about-page{
+
+    padding:0 20px;
+
+}
+
+.about-hero h1{
+
+    font-size:42px;
+
+}
+
+}

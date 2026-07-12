@@ -1,0 +1,67 @@
+.btn-primary{
+
+display:inline-flex;
+
+align-items:center;
+
+justify-content:center;
+
+padding:18px 34px;
+
+border-radius:999px;
+
+background:linear-gradient(
+135deg,
+#2563EB,
+#3B82F6
+);
+
+color:white;
+
+text-decoration:none;
+
+font-weight:600;
+
+transition:var(--transition);
+
+box-shadow:0 15px 40px rgba(37,99,235,.30);
+
+}
+
+.btn-primary:hover{
+
+transform:translateY(-4px);
+
+box-shadow:0 25px 60px rgba(37,99,235,.45);
+
+}
+
+.btn-secondary{
+
+display:inline-flex;
+
+align-items:center;
+
+justify-content:center;
+
+padding:18px 34px;
+
+border-radius:999px;
+
+border:1px solid rgba(255,255,255,.15);
+
+color:white;
+
+text-decoration:none;
+
+backdrop-filter:blur(15px);
+
+transition:var(--transition);
+
+}
+
+.btn-secondary:hover{
+
+background:rgba(255,255,255,.05);
+
+}

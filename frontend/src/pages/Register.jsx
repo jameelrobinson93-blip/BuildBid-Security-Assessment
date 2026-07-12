@@ -1,7 +1,11 @@
 import { useState } from "react";
+import { useNavigate, Link } from "react-router-dom";
 import API_URL from "../config.js";
+import "./Register.css";
 
 function Register() {
+
+  const navigate = useNavigate();
 
   const [form, setForm] = useState({
     firstName: "",
@@ -9,6 +13,8 @@ function Register() {
     email: "",
     password: ""
   });
+
+  const [loading, setLoading] = useState(false);
 
   function handleChange(e) {
 
@@ -20,6 +26,18 @@ function Register() {
   }
 
   async function handleRegister() {
+
+    if (
+      !form.firstName ||
+      !form.lastName ||
+      !form.email ||
+      !form.password
+    ) {
+      alert("Please complete all fields.");
+      return;
+    }
+
+    setLoading(true);
 
     try {
 
@@ -42,7 +60,7 @@ function Register() {
 
         alert("Account created successfully!");
 
-        window.location.href = "/login";
+        navigate("/login");
 
       } else {
 
@@ -56,55 +74,86 @@ function Register() {
 
       alert("Unable to connect to the server.");
 
+    } finally {
+
+      setLoading(false);
+
     }
 
   }
 
   return (
 
-    <div className="page">
+    <div className="login-page">
 
-      <h1>Create Account</h1>
+      <div className="login-card">
 
-      <input
-        type="text"
-        name="firstName"
-        placeholder="First Name"
-        onChange={handleChange}
-      />
+        <h1>Create Account</h1>
 
-      <br /><br />
+        <p>
+          Join BuildBid and start connecting with trusted
+          local contractors for your next home project.
+        </p>
 
-      <input
-        type="text"
-        name="lastName"
-        placeholder="Last Name"
-        onChange={handleChange}
-      />
+        <form
+          onSubmit={(e) => {
+            e.preventDefault();
+            handleRegister();
+          }}
+        >
 
-      <br /><br />
+          <input
+            type="text"
+            name="firstName"
+            placeholder="First Name"
+            value={form.firstName}
+            onChange={handleChange}
+          />
 
-      <input
-        type="email"
-        name="email"
-        placeholder="Email"
-        onChange={handleChange}
-      />
+          <input
+            type="text"
+            name="lastName"
+            placeholder="Last Name"
+            value={form.lastName}
+            onChange={handleChange}
+          />
 
-      <br /><br />
+          <input
+            type="email"
+            name="email"
+            placeholder="Email Address"
+            value={form.email}
+            onChange={handleChange}
+          />
 
-      <input
-        type="password"
-        name="password"
-        placeholder="Password"
-        onChange={handleChange}
-      />
+          <input
+            type="password"
+            name="password"
+            placeholder="Password"
+            value={form.password}
+            onChange={handleChange}
+          />
 
-      <br /><br />
+          <button
+            type="submit"
+            disabled={loading}
+          >
+            {loading ? "Creating Account..." : "Create Account"}
+          </button>
 
-      <button onClick={handleRegister}>
-        Create Account
-      </button>
+        </form>
+
+        <div className="login-footer">
+
+          <p>Already have an account?</p>
+
+          <Link to="/login">
+            Sign In
+          </Link>
+
+        </div>
+
+      </div>
 
     </div>
 

@@ -1,0 +1,36 @@
+/* ===========================================
+   BUILDBID DESIGN SYSTEM
+=========================================== */
+
+:root{
+
+/* Colors */
+
+--bg:#09090B;
+--bg-secondary:#111827;
+--surface:#1F2937;
+--surface-light:#374151;
+
+--primary:#2563EB;
+--primary-hover:#1D4ED8;
+
+--accent:#60A5FA;
+
+--text:#F9FAFB;
+--text-secondary:#9CA3AF;
+
+--border:rgba(255,255,255,.08);
+
+/* Shadows */
+
+--shadow:
+0 30px 80px rgba(0,0,0,.45);
+
+--shadow-hover:
+0 40px 90px rgba(0,0,0,.60);
+
+/* Radius */
+
+--radius:24px;
+
+}

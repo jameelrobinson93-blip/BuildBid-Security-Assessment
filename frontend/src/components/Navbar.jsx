@@ -1,78 +1,46 @@
 import { NavLink } from "react-router-dom";
-import {
-  FaHome,
-  FaSearch,
-  FaClipboardList,
-  FaStar,
-  FaShieldAlt,
-  FaInfoCircle,
-  FaSignInAlt,
-  FaUserPlus
-} from "react-icons/fa";
-
-import Logo from "./Logo";
 import "./Navbar.css";
 
-function Navbar() {
+export default function Navbar() {
   return (
-    <nav className="navbar">
+    <header className="navbar">
 
-      <Logo />
+      <div className="logo">
+    <h2>BuildBid</h2>
+</div>
 
-      <ul className="nav-links">
+      <nav className="nav-links">
 
-        <li>
-          <NavLink to="/">
-            <FaHome /> Home
-          </NavLink>
-        </li>
+        <NavLink to="/">Home</NavLink>
 
-        <li>
-          <NavLink to="/search">
-            <FaSearch /> Contractors
-          </NavLink>
-        </li>
+        <a href="#services">Services</a>
 
-        <li>
-          <NavLink to="/estimate">
-            <FaClipboardList /> Estimates
-          </NavLink>
-        </li>
+        <NavLink to="/search">Find Contractors</NavLink>
 
-        <li>
-          <NavLink to="/reviews">
-            <FaStar /> Reviews
-          </NavLink>
-        </li>
+        <NavLink to="/reviews">Reviews</NavLink>
 
-        <li>
-          <NavLink to="/security">
-            <FaShieldAlt /> Security
-          </NavLink>
-        </li>
+        <NavLink to="/about">About</NavLink>
 
-        <li>
-          <NavLink to="/about">
-            <FaInfoCircle /> About
-          </NavLink>
-        </li>
+      </nav>
 
-      </ul>
+      <div className="nav-buttons">
 
-      <div className="nav-auth">
-
-        <NavLink to="/login" className="login-btn">
-          <FaSignInAlt /> Login
+        <NavLink
+          to="/login"
+          className="login-btn"
+        >
+          Login
         </NavLink>
 
-        <NavLink to="/register" className="register-btn">
-          <FaUserPlus /> Register
+        <NavLink
+          to="/estimate"
+          className="estimate-btn"
+        >
+          Get Free Estimates
         </NavLink>
 
       </div>
 
-    </nav>
+    </header>
   );
 }
-
-export default Navbar;
