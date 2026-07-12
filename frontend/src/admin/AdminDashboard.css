@@ -1,0 +1,196 @@
+.admin-page{
+
+    min-height:100vh;
+    background:#09090B;
+    padding:140px 60px 60px;
+    color:white;
+
+}
+
+.admin-page h1{
+
+    font-size:42px;
+    margin-bottom:40px;
+    font-weight:700;
+
+}
+
+.dashboard-grid{
+
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(250px,1fr));
+    gap:25px;
+    margin-bottom:60px;
+
+}
+
+.card{
+
+    background:#18181B;
+    border:1px solid rgba(255,255,255,.08);
+    border-radius:18px;
+    padding:28px;
+    transition:.3s;
+    box-shadow:0 12px 35px rgba(0,0,0,.35);
+
+}
+
+.card:hover{
+
+    transform:translateY(-8px);
+
+}
+
+.card h2{
+
+    color:#A1A1AA;
+    font-size:16px;
+    margin-bottom:20px;
+
+}
+
+.card h1{
+
+    font-size:48px;
+    margin:0;
+    color:white;
+
+}
+
+.success{
+
+    border-left:6px solid #22C55E;
+
+}
+
+.danger{
+
+    border-left:6px solid #EF4444;
+
+}
+
+.warning{
+
+    border-left:6px solid #F59E0B;
+
+}
+
+.xss{
+
+    border-left:6px solid #3B82F6;
+
+}
+
+.logs-title{
+
+    margin-bottom:25px;
+    margin-top:30px;
+
+}
+
+table{
+
+    width:100%;
+    border-collapse:collapse;
+    background:#18181B;
+    border-radius:18px;
+    overflow:hidden;
+
+}
+
+thead{
+
+    background:#111827;
+
+}
+
+th{
+
+    padding:18px;
+    text-align:left;
+    color:#9CA3AF;
+    font-weight:600;
+
+}
+
+td{
+
+    padding:18px;
+    border-top:1px solid rgba(255,255,255,.05);
+
+}
+
+tbody tr{
+
+    transition:.25s;
+
+}
+
+tbody tr:hover{
+
+    background:#20232b;
+
+}
+
+.status-success{
+
+    color:#22C55E;
+    font-weight:bold;
+
+}
+
+.status-failed{
+
+    color:#EF4444;
+    font-weight:bold;
+
+}
+
+.status-locked{
+
+    color:#F59E0B;
+    font-weight:bold;
+
+}
+
+@media(max-width:900px){
+
+.admin-page{
+
+padding:120px 25px;
+
+}
+
+.dashboard-grid{
+
+grid-template-columns:1fr;
+
+}
+
+table{
+
+display:block;
+overflow-x:auto;
+
+}
+
+}
+.status-success{
+    color:#22C55E;
+    font-weight:700;
+}
+
+.status-failed{
+    color:#EF4444;
+    font-weight:700;
+}
+
+.status-locked{
+    color:#F59E0B;
+    font-weight:700;
+}
+
+.status-xss{
+    color:#3B82F6;
+    font-weight:700;
+}

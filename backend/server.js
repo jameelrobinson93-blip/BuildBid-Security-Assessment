@@ -2,15 +2,16 @@ const express = require("express");
 const cors = require("cors");
 const helmet = require("helmet");
 const rateLimit = require("express-rate-limit");
-const reviewRoutes = require("./routes/reviewRoutes");
-const dashboardRoutes = require("./routes/dashboardRoutes");
 
 const db = require("./database/database");
-const securityRoutes = require("./routes/securityRoutes");
 
 // Routes
-const contractorRoutes = require("./routes/contractorRoutes");
 const authRoutes = require("./routes/authRoutes");
+const contractorRoutes = require("./routes/contractorRoutes");
+const securityRoutes = require("./routes/securityRoutes");
+const reviewRoutes = require("./routes/reviewRoutes");
+const dashboardRoutes = require("./routes/dashboardRoutes");
+const adminRoutes = require("./routes/adminRoutes");
 
 const app = express();
 
@@ -21,25 +22,24 @@ const app = express();
 db.serialize(() => {
 
   // USERS TABLE
-db.run(`
-  CREATE TABLE IF NOT EXISTS users (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    first_name TEXT,
-    last_name TEXT,
-    email TEXT UNIQUE,
-    password TEXT,
-    role TEXT,
+  db.run(`
+    CREATE TABLE IF NOT EXISTS users (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      first_name TEXT,
+      last_name TEXT,
+      email TEXT UNIQUE,
+      password TEXT,
+      role TEXT,
+      failed_attempts INTEGER DEFAULT 0,
+      locked_until INTEGER DEFAULT 0
+    )
+  `);
 
-    failed_attempts INTEGER DEFAULT 0,
-    locked_until INTEGER DEFAULT 0
-  )
-`);
+  // Add columns for existing databases
+  db.run("ALTER TABLE users ADD COLUMN failed_attempts INTEGER DEFAULT 0", () => {});
+  db.run("ALTER TABLE users ADD COLUMN locked_until INTEGER DEFAULT 0", () => {});
 
-// Add brute-force protection columns for existing databases
-db.run("ALTER TABLE users ADD COLUMN failed_attempts INTEGER DEFAULT 0", () => {});
-db.run("ALTER TABLE users ADD COLUMN locked_until INTEGER DEFAULT 0", () => {});
-
-  // CONTRACTORS TABLE
+  // CONTRACTORS
   db.run(`
     CREATE TABLE IF NOT EXISTS contractors (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -51,7 +51,7 @@ db.run("ALTER TABLE users ADD COLUMN locked_until INTEGER DEFAULT 0", () => {});
     )
   `);
 
-  // ESTIMATES TABLE
+  // ESTIMATES
   db.run(`
     CREATE TABLE IF NOT EXISTS estimates (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -64,29 +64,30 @@ db.run("ALTER TABLE users ADD COLUMN locked_until INTEGER DEFAULT 0", () => {});
     )
   `);
 
-  // REVIEWS TABLE
-db.run(`
-  CREATE TABLE IF NOT EXISTS reviews (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    name TEXT NOT NULL,
-    rating INTEGER NOT NULL,
-    comment TEXT NOT NULL,
-    created_at DATETIME DEFAULT CURRENT_TIMESTAMP
-  )
-`);
+  // REVIEWS
+  db.run(`
+    CREATE TABLE IF NOT EXISTS reviews (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      name TEXT NOT NULL,
+      rating INTEGER NOT NULL,
+      comment TEXT NOT NULL,
+      created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+    )
+  `);
 
-  // SECURITY LOGS TABLE
-db.run(`
-  CREATE TABLE IF NOT EXISTS security_logs (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    email TEXT,
-    status TEXT,
-    ip_address TEXT,
-    event_time DATETIME DEFAULT CURRENT_TIMESTAMP
-  )
-`);
+  // SECURITY LOGS
+  db.run(`
+    CREATE TABLE IF NOT EXISTS security_logs (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      email TEXT,
+      status TEXT,
+      ip_address TEXT,
+      event_time DATETIME DEFAULT CURRENT_TIMESTAMP
+    )
+  `);
 
-  // Sample Contractors
+  // SAMPLE CONTRACTORS
+
   db.run(`
     INSERT OR IGNORE INTO contractors
     (id, company, specialty, city, phone, rating)
@@ -103,7 +104,7 @@ db.run(`
 
   db.run(`
     INSERT OR IGNORE INTO contractors
-    (id, company, specialty, city, phone, rating)
+    (id, company, specialty,city,phone,rating)
     VALUES
     (3,'Garden State Plumbing','Plumbing','Newark','973-555-3003',5.0)
   `);
@@ -119,35 +120,53 @@ app.disable("x-powered-by");
 app.use(helmet());
 
 const limiter = rateLimit({
+
   windowMs: 15 * 60 * 1000,
+
   max: 100,
+
   standardHeaders: true,
+
   legacyHeaders: false,
+
   message: {
     error: "Too many requests. Please try again later."
   }
+
 });
 
 app.use(limiter);
 
 const allowedOrigins = [
+
   "http://localhost:5173",
+
   "http://localhost:5174",
+
   "https://buildbid-pdbp.onrender.com"
+
 ];
 
 app.use(cors({
-  origin: function (origin, callback) {
+
+  origin(origin, callback) {
 
     if (!origin || allowedOrigins.includes(origin)) {
+
       callback(null, true);
+
     } else {
+
       callback(new Error("CORS Not Allowed"));
+
     }
 
   },
+
   credentials: true,
-  methods: ["GET", "POST", "PUT", "DELETE"]
+
+  methods: ["GET","POST","PUT","DELETE"]
+
 }));
 
 app.use(express.json());
@@ -157,21 +176,31 @@ app.use(express.json());
 =========================== */
 
 app.use("/api/auth", authRoutes);
+
 app.use("/api/contractors", contractorRoutes);
+
 app.use("/api/security", securityRoutes);
+
 app.use("/api/reviews", reviewRoutes);
+
 app.use("/api/dashboard", dashboardRoutes);
+
+app.use("/api/admin", adminRoutes);
 
 /* ===========================
    HOME
 =========================== */
 
-app.get("/", (req, res) => {
+app.get("/", (req,res)=>{
 
   res.json({
-    project: "BuildBid",
-    status: "API Running",
-    version: "1.0"
+
+    project:"BuildBid",
+
+    status:"API Running",
+
+    version:"1.0"
+
   });
 
 });
@@ -180,42 +209,54 @@ app.get("/", (req, res) => {
    DATABASE TEST
 =========================== */
 
-app.get("/api/test", (req, res) => {
+app.get("/api/test",(req,res)=>{
 
   db.all(
-    "SELECT name FROM sqlite_master WHERE type='table'",
-    [],
-    (err, rows) => {
 
-      if (err) {
+    "SELECT name FROM sqlite_master WHERE type='table'",
+
+    [],
+
+    (err,rows)=>{
+
+      if(err){
+
         return res.status(500).json(err);
+
       }
 
       res.json(rows);
 
     }
+
   );
 
 });
 
 /* ===========================
-   TEMPORARY USERS ROUTE
+   TEMP USERS
 =========================== */
 
-app.get("/api/users", (req, res) => {
+app.get("/api/users",(req,res)=>{
 
   db.all(
-    "SELECT * FROM users",
-    [],
-    (err, rows) => {
 
-      if (err) {
+    "SELECT * FROM users",
+
+    [],
+
+    (err,rows)=>{
+
+      if(err){
+
         return res.status(500).json(err);
+
       }
 
       res.json(rows);
 
     }
+
   );
 
 });
@@ -226,7 +267,7 @@ app.get("/api/users", (req, res) => {
 
 const PORT = process.env.PORT || 5000;
 
-app.listen(PORT, () => {
+app.listen(PORT,()=>{
 
   console.log(`✅ BuildBid Server running on http://localhost:${PORT}`);
 
