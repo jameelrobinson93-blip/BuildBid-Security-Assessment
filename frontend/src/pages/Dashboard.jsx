@@ -58,7 +58,11 @@ function Dashboard() {
 
           <h2>Quick Actions</h2>
 
-          <button>Request New Estimate</button>
+        <button
+  onClick={() => navigate("/create-estimate")}
+>
+  Request New Estimate
+</button>
 
           <button>View My Estimates</button>
 

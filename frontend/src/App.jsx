@@ -16,6 +16,7 @@ import RequestEstimate from "./pages/RequestEstimate";
 import Search from "./pages/Search";
 import Reviews from "./pages/Reviews";
 import Dashboard from "./pages/Dashboard";
+import CreateEstimate from "./pages/CreateEstimate";
 
 import AdminLogin from "./admin/AdminLogin";
 import AdminDashboard from "./admin/AdminDashboard";
@@ -55,6 +56,11 @@ function AppContent() {
           path="/reviews"
           element={<Reviews />}
         />
+
+<Route
+  path="/create-estimate"
+  element={<CreateEstimate />}
+/>
 
         <Route
           path="/about"
