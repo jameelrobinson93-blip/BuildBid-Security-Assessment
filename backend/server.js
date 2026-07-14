@@ -1,3 +1,5 @@
+require("dotenv").config();
+
 const express = require("express");
 const cors = require("cors");
 const helmet = require("helmet");
@@ -12,6 +14,7 @@ const securityRoutes = require("./routes/securityRoutes");
 const reviewRoutes = require("./routes/reviewRoutes");
 const dashboardRoutes = require("./routes/dashboardRoutes");
 const adminRoutes = require("./routes/adminRoutes");
+const estimateRoutes = require("./routes/estimateRoutes");
 
 const app = express();
 
@@ -24,54 +27,40 @@ app.disable("x-powered-by");
 app.use(helmet());
 
 const limiter = rateLimit({
-
   windowMs: 15 * 60 * 1000,
-
   max: 100,
-
   standardHeaders: true,
-
   legacyHeaders: false,
-
   message: {
     error: "Too many requests. Please try again later."
   }
-
 });
 
 app.use(limiter);
 
+/* ===========================
+   CORS
+=========================== */
+
 const allowedOrigins = [
-
   "http://localhost:5173",
-
   "http://localhost:5174",
-
   "https://buildbid-pdbp.onrender.com"
-
 ];
 
-app.use(cors({
-
-  origin(origin, callback) {
-
-    if (!origin || allowedOrigins.includes(origin)) {
-
-      callback(null, true);
-
-    } else {
-
-      callback(new Error("CORS Not Allowed"));
-
-    }
-
-  },
-
-  credentials: true,
-
-  methods: ["GET","POST","PUT","DELETE"]
-
-}));
+app.use(
+  cors({
+    origin(origin, callback) {
+      if (!origin || allowedOrigins.includes(origin)) {
+        callback(null, true);
+      } else {
+        callback(new Error("CORS Not Allowed"));
+      }
+    },
+    credentials: true,
+    methods: ["GET", "POST", "PUT", "DELETE"]
+  })
+);
 
 app.use(express.json());
 
@@ -91,57 +80,44 @@ app.use("/api/dashboard", dashboardRoutes);
 
 app.use("/api/admin", adminRoutes);
 
+app.use("/api/estimates", estimateRoutes);
+
 /* ===========================
    HOME
 =========================== */
 
-app.get("/", (req,res)=>{
-
+app.get("/", (req, res) => {
   res.json({
-
-    project:"BuildBid",
-
-    status:"API Running",
-
-    version:"2.0"
-
+    project: "BuildBid API",
+    status: "Running",
+    database: "PostgreSQL"
   });
-
 });
 
 /* ===========================
    DATABASE TEST
 =========================== */
 
-/* ===========================
-   TEMP USERS
-=========================== */
-
-/* ===========================
-   START SERVER
-=========================== */
-
 app.get("/api/postgres-test", async (req, res) => {
   try {
     const result = await pool.query(
-      "INSERT INTO users (first_name, last_name, email, password, role) VALUES ($1,$2,$3,$4,$5) RETURNING *",
-      [
-        "Test",
-        "User",
-        `test${Date.now()}@buildbid.com`,
-        "password",
-        "customer",
-      ]
+      "SELECT current_database(), current_user, NOW()"
     );
 
     res.json(result.rows[0]);
   } catch (err) {
     console.error(err);
+
     res.status(500).json({
-      error: err.message,
+      error: err.message
     });
   }
 });
+
+/* ===========================
+   START SERVER
+=========================== */
+
 const PORT = process.env.PORT || 5000;
 
 app.listen(PORT, () => {
@@ -149,6 +125,5 @@ app.listen(PORT, () => {
   console.log("======================================");
   console.log("🚀 BuildBid Backend Started");
   console.log(`🌐 Running on Port ${PORT}`);
-  console.log("🐘 PostgreSQL Connected");
   console.log("======================================");
 });
