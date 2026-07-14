@@ -5,6 +5,7 @@ const estimateModel = require("../models/estimateModel");
 =========================== */
 
 exports.createEstimate = async (req, res) => {
+
   try {
 
     const {
@@ -62,6 +63,7 @@ exports.createEstimate = async (req, res) => {
     });
 
   }
+
 };
 
 /* ===========================
@@ -69,6 +71,7 @@ exports.createEstimate = async (req, res) => {
 =========================== */
 
 exports.getUserEstimates = async (req, res) => {
+
   try {
 
     const { userId } = req.params;
@@ -99,4 +102,78 @@ exports.getUserEstimates = async (req, res) => {
     });
 
   }
+
+};
+
+/* ===========================
+   UPDATE ESTIMATE
+=========================== */
+
+exports.updateEstimate = async (req, res) => {
+
+  try {
+
+    const { id } = req.params;
+
+    const {
+      projectType,
+      description,
+      budget,
+      address
+    } = req.body;
+
+    console.log("");
+    console.log("========== UPDATE ESTIMATE ==========");
+    console.table(req.body);
+
+    if (
+      !projectType ||
+      !description ||
+      !budget ||
+      !address
+    ) {
+      return res.status(400).json({
+        success: false,
+        message: "Please complete all fields."
+      });
+    }
+
+    const estimate = await estimateModel.updateEstimate(
+      id,
+      projectType,
+      description,
+      budget,
+      address
+    );
+
+    if (!estimate) {
+      return res.status(404).json({
+        success: false,
+        message: "Estimate not found."
+      });
+    }
+
+    console.log("✅ ESTIMATE UPDATED");
+    console.table([estimate]);
+
+    return res.status(200).json({
+      success: true,
+      message: "Estimate updated successfully!",
+      estimate
+    });
+
+  } catch (err) {
+
+    console.log("");
+    console.log("========== UPDATE ESTIMATE ERROR ==========");
+    console.error(err);
+    console.log("");
+
+    return res.status(500).json({
+      success: false,
+      message: err.message
+    });
+
+  }
+
 };

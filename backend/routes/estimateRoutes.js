@@ -3,10 +3,31 @@ const router = express.Router();
 
 const estimateController = require("../controllers/estimateController");
 
-// Create Estimate
-router.post("/", estimateController.createEstimate);
+/* ===========================
+   CREATE ESTIMATE
+=========================== */
 
-// Get Estimates for a User
-router.get("/:userId", estimateController.getUserEstimates);
+router.post(
+  "/",
+  estimateController.createEstimate
+);
+
+/* ===========================
+   GET USER ESTIMATES
+=========================== */
+
+router.get(
+  "/:userId",
+  estimateController.getUserEstimates
+);
+
+/* ===========================
+   UPDATE ESTIMATE
+=========================== */
+
+router.put(
+  "/:id",
+  estimateController.updateEstimate
+);
 
 module.exports = router;

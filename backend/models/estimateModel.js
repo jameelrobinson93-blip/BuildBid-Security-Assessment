@@ -64,8 +64,47 @@ async function getUserEstimates(userId) {
   return result.rows;
 
 }
+/* ===========================
+   UPDATE ESTIMATE
+=========================== */
+
+async function updateEstimate(
+  id,
+  projectType,
+  description,
+  budget,
+  address
+) {
+
+  const result = await pool.query(
+
+    `
+    UPDATE estimates
+    SET
+      project_type = $1,
+      description = $2,
+      budget = $3,
+      address = $4
+    WHERE id = $5
+    RETURNING *
+    `,
+
+    [
+      projectType,
+      description,
+      budget,
+      address,
+      id
+    ]
+
+  );
+
+  return result.rows[0];
+
+}
 
 module.exports = {
   createEstimate,
-  getUserEstimates
+  getUserEstimates,
+  updateEstimate
 };
