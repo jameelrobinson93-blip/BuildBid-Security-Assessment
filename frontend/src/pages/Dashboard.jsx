@@ -194,7 +194,13 @@ function Dashboard() {
 
               </p>
 
-              <hr />
+            <div className="estimate-actions">
+  <button className="edit-btn">
+    Edit
+  </button>
+
+  <hr />
+</div>
 
             </div>
 
