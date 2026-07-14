@@ -15,6 +15,7 @@ import Register from "./pages/Register";
 import RequestEstimate from "./pages/RequestEstimate";
 import Search from "./pages/Search";
 import Reviews from "./pages/Reviews";
+import Dashboard from "./pages/Dashboard";
 
 import AdminLogin from "./admin/AdminLogin";
 import AdminDashboard from "./admin/AdminDashboard";
@@ -64,6 +65,11 @@ function AppContent() {
           path="/login"
           element={<Login />}
         />
+
+<Route
+  path="/dashboard"
+  element={<Dashboard />}
+/>
 
         <Route
           path="/register"

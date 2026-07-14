@@ -50,7 +50,7 @@ function Login() {
 
         alert("Login Successful!");
 
-        navigate("/");
+      navigate("/dashboard");
       } else {
         alert(data.message);
       }
