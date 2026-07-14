@@ -5,42 +5,17 @@ const pool = require("../database/postgres");
 =========================== */
 
 async function createUser(firstName, lastName, email, password, role) {
-
   const result = await pool.query(
-
     `
     INSERT INTO users
-    (
-      first_name,
-      last_name,
-      email,
-      password,
-      role
-    )
-    VALUES
-    ($1,$2,$3,$4,$5)
-    RETURNING *
+    (first_name, last_name, email, password, role)
+    VALUES ($1,$2,$3,$4,$5)
+    RETURNING *;
     `,
-
-    [
-      firstName,
-      lastName,
-      email,
-      password,
-      role
-    ]
-
+    [firstName, lastName, email, password, role]
   );
 
-  console.log("");
-  console.log("======================================");
-  console.log("✅ USER INSERTED INTO POSTGRESQL");
-  console.table(result.rows);
-  console.log("======================================");
-  console.log("");
-
   return result.rows[0];
-
 }
 
 /* ===========================
@@ -61,12 +36,7 @@ async function findUserByEmail(email) {
 
   );
 
-  console.log("");
-  console.log("Searching PostgreSQL for:", email);
-  console.log("User Found:", result.rows.length);
-  console.log("");
-
-  return result.rows[0] || null;
+  return result.rows[0];
 
 }
 

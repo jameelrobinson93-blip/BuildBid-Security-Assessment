@@ -1,47 +1,25 @@
-const db = require("../database/database");
+const pool = require("../database/postgres");
 
-function logEvent(email, status, ip, callback) {
-
-  db.run(
-    `
-    INSERT INTO security_logs
+async function logEvent(email, status, ip) {
+  await pool.query(
+    `INSERT INTO security_logs
     (email, status, ip_address)
-    VALUES (?, ?, ?)
-    `,
-    [email, status, ip],
-    function (err) {
-
-      if (err) {
-        console.log("❌ SECURITY LOG ERROR");
-        console.log(err);
-      } else {
-        console.log("✅ Security event saved:", status, email);
-      }
-
-      if (callback) {
-        callback(err);
-      }
-
-    }
+    VALUES ($1,$2,$3)`,
+    [email, status, ip]
   );
-
 }
 
-function getLogs(callback) {
-
-  db.all(
-    `
-    SELECT *
-    FROM security_logs
-    ORDER BY event_time DESC
-    `,
-    [],
-    callback
+async function getLogs() {
+  const result = await pool.query(
+    `SELECT *
+     FROM security_logs
+     ORDER BY event_time DESC`
   );
 
+  return result.rows;
 }
 
 module.exports = {
   logEvent,
-  getLogs
+  getLogs,
 };

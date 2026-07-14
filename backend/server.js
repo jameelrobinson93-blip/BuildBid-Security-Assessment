@@ -4,6 +4,7 @@ const helmet = require("helmet");
 const rateLimit = require("express-rate-limit");
 
 const db = require("./database/database");
+const pool = require("./database/postgres");
 
 // Routes
 const authRoutes = require("./routes/authRoutes");
@@ -265,6 +266,27 @@ app.get("/api/users",(req,res)=>{
    START SERVER
 =========================== */
 
+app.get("/api/postgres-test", async (req, res) => {
+  try {
+    const result = await pool.query(
+      "INSERT INTO users (first_name, last_name, email, password, role) VALUES ($1,$2,$3,$4,$5) RETURNING *",
+      [
+        "Test",
+        "User",
+        `test${Date.now()}@buildbid.com`,
+        "password",
+        "customer",
+      ]
+    );
+
+    res.json(result.rows[0]);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({
+      error: err.message,
+    });
+  }
+});
 const PORT = process.env.PORT || 5000;
 
 app.listen(PORT,()=>{
