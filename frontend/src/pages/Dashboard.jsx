@@ -52,17 +52,17 @@ const [editForm, setEditForm] = useState({
 
 }, [user]);
 
-  function startEditing(estimate) {
+ function startEditing(estimate) {
 
-  console.log("Edit clicked", estimate);
+  console.log("Editing estimate:", estimate);
 
   setEditingEstimate(estimate.id);
 
   setEditForm({
-    projectType: estimate.project_type,
-    description: estimate.description,
-    budget: estimate.budget,
-    address: estimate.address
+    projectType: estimate.project_type || "",
+    description: estimate.description || "",
+    budget: estimate.budget || "",
+    address: estimate.address || ""
   });
 
 }
@@ -303,9 +303,9 @@ async function saveEstimate(id) {
 
 {editingEstimate !== estimate.id && (
 
- <button
+<button
   className="edit-btn"
-  onClick={() => alert("Button clicked")}
+  onClick={() => startEditing(estimate)}
 >
   Edit
 </button>
