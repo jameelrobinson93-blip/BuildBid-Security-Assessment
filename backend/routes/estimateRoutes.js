@@ -30,4 +30,6 @@ router.put(
   estimateController.updateEstimate
 );
 
+router.delete("/:id", estimateController.deleteEstimate);
+
 module.exports = router;

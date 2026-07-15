@@ -17,7 +17,7 @@ async function createEstimate(
     `
     INSERT INTO estimates
     (
-      user_id,
+      userid,
       project_type,
       description,
       budget,
@@ -53,7 +53,7 @@ async function getUserEstimates(userId) {
     `
     SELECT *
     FROM estimates
-    WHERE user_id = $1
+    WHERE userid = $1
     ORDER BY created_at DESC
     `,
 
@@ -64,6 +64,7 @@ async function getUserEstimates(userId) {
   return result.rows;
 
 }
+
 /* ===========================
    UPDATE ESTIMATE
 =========================== */
@@ -103,8 +104,28 @@ async function updateEstimate(
 
 }
 
+/* ===========================
+   DELETE ESTIMATE
+=========================== */
+
+async function deleteEstimate(id) {
+
+  await pool.query(
+
+    `
+    DELETE FROM estimates
+    WHERE id = $1
+    `,
+
+    [id]
+
+  );
+
+}
+
 module.exports = {
   createEstimate,
   getUserEstimates,
-  updateEstimate
+  updateEstimate,
+  deleteEstimate
 };
