@@ -1,10 +1,10 @@
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
 import API_URL from "../config.js";
 import "./Login.css";
 
 function Login() {
+
   const navigate = useNavigate();
 
   const [form, setForm] = useState({
@@ -15,33 +15,46 @@ function Login() {
   const [loading, setLoading] = useState(false);
 
   function handleChange(e) {
+
     setForm({
       ...form,
       [e.target.name]: e.target.value,
     });
+
   }
 
   async function handleLogin() {
+
     if (!form.email || !form.password) {
+
       alert("Please enter your email and password.");
       return;
+
     }
 
     setLoading(true);
 
     try {
-      const response = await fetch(`${API_URL}/api/auth/login`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(form),
-      });
+
+      const response = await fetch(
+        `${API_URL}/api/auth/login`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(form),
+        }
+      );
 
       const data = await response.json();
 
       if (data.success) {
-        localStorage.setItem("token", data.token);
+
+        localStorage.setItem(
+          "token",
+          data.token
+        );
 
         localStorage.setItem(
           "user",
@@ -50,20 +63,48 @@ function Login() {
 
         alert("Login Successful!");
 
-      navigate("/dashboard");
+        /* ===========================
+           ROLE BASED LOGIN
+        =========================== */
+
+        if (data.user.role === "admin") {
+
+          navigate("/admin/dashboard");
+
+        } else if (
+          data.user.role === "contractor"
+        ) {
+
+          navigate("/contractor-dashboard");
+
+        } else {
+
+          navigate("/dashboard");
+
+        }
+
       } else {
+
         alert(data.message);
+
       }
+
     } catch (error) {
+
       console.error(error);
 
       alert("Unable to connect to the server.");
+
     } finally {
+
       setLoading(false);
+
     }
+
   }
 
   return (
+
     <div className="login-page">
 
       <div className="login-card">
@@ -72,7 +113,7 @@ function Login() {
 
         <p>
           Sign in to manage your projects,
-          estimates, and favorite contractors.
+          estimates and favorite contractors.
         </p>
 
         <form
@@ -81,17 +122,18 @@ function Login() {
             handleLogin();
           }}
         >
+
           <div className="login-footer">
 
-  <p>
-    Don't have an account?
-  </p>
+            <p>
+              Don't have an account?
+            </p>
 
-  <Link to="/register">
-    Create an Account
-  </Link>
+            <Link to="/register">
+              Create an Account
+            </Link>
 
-</div>
+          </div>
 
           <input
             type="email"
@@ -113,7 +155,9 @@ function Login() {
             type="submit"
             disabled={loading}
           >
-            {loading ? "Signing In..." : "Login"}
+            {loading
+              ? "Signing In..."
+              : "Login"}
           </button>
 
         </form>
@@ -121,7 +165,9 @@ function Login() {
       </div>
 
     </div>
+
   );
+
 }
 
 export default Login;

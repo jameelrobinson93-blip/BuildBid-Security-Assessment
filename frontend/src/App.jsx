@@ -19,10 +19,10 @@ import Reviews from "./pages/Reviews";
 import Dashboard from "./pages/Dashboard";
 import CreateEstimate from "./pages/CreateEstimate";
 import ContractorDashboard from "./pages/ContractorDashboard";
+import ContractorProfile from "./pages/ContractorProfile";
 
 import AdminLogin from "./admin/AdminLogin";
-import AdminDashboard from "./admin/AdminDashboard";
-import ProtectedAdmin from "./admin/ProtectedAdmin";
+import AdminRoutes from "./admin/AdminRoutes";
 
 import "./App.css";
 
@@ -124,15 +124,15 @@ function AppContent() {
           path="/admin/login"
           element={<AdminLogin />}
         />
+<Route
+  path="/contractors/:id"
+  element={<ContractorProfile />}
+/>
 
         <Route
-          path="/admin/dashboard"
-          element={
-            <ProtectedAdmin>
-              <AdminDashboard />
-            </ProtectedAdmin>
-          }
-        />
+  path="/admin/*"
+  element={<AdminRoutes />}
+/>
 
       </Routes>
 

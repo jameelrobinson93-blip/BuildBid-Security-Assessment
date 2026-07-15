@@ -9,10 +9,21 @@ export default function AdminLogin() {
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [loading, setLoading] = useState(false);
 
   async function handleSubmit(e) {
 
     e.preventDefault();
+
+    if (!email || !password) {
+
+      alert("Please enter your email and password.");
+
+      return;
+
+    }
+
+    setLoading(true);
 
     try {
 
@@ -48,25 +59,29 @@ export default function AdminLogin() {
 
       }
 
-      localStorage.setItem("token", data.token);
+      localStorage.setItem(
+        "token",
+        data.token
+      );
 
       localStorage.setItem(
         "user",
         JSON.stringify(data.user)
       );
 
-      localStorage.setItem(
-        "adminLoggedIn",
-        "true"
-      );
+      alert("Welcome back, Administrator.");
 
       navigate("/admin/dashboard");
 
     } catch (err) {
 
-      console.log(err);
+      console.error(err);
 
-      alert("Unable to connect to server.");
+      alert("Unable to connect to the server.");
+
+    } finally {
+
+      setLoading(false);
 
     }
 
@@ -81,27 +96,38 @@ export default function AdminLogin() {
         onSubmit={handleSubmit}
       >
 
-        <h1>BuildBid SOC</h1>
+        <h1>BuildBid Admin Portal</h1>
 
-        <p>Administrator Access Only</p>
+        <p>
+          Administrator Access Only
+        </p>
 
         <input
           type="email"
           placeholder="Admin Email"
           value={email}
-          onChange={(e)=>setEmail(e.target.value)}
+          onChange={(e) =>
+            setEmail(e.target.value)
+          }
         />
 
         <input
           type="password"
           placeholder="Password"
           value={password}
-          onChange={(e)=>setPassword(e.target.value)}
+          onChange={(e) =>
+            setPassword(e.target.value)
+          }
         />
 
-        <button type="submit">
+        <button
+          type="submit"
+          disabled={loading}
+        >
 
-          Sign In
+          {loading
+            ? "Signing In..."
+            : "Sign In"}
 
         </button>
 
