@@ -5,57 +5,59 @@ const router = express.Router();
 const estimateController = require("../controllers/estimateController");
 
 /* ===========================
-   CREATE ESTIMATE
+   ADMIN
 =========================== */
 
-router.post(
-  "/",
-  estimateController.createEstimate
-);
-
-/* ===========================
-   GET ALL ESTIMATES
-=========================== */
-
+// Get all estimates
 router.get(
   "/",
   estimateController.getAllEstimates
 );
 
+// Get one estimate
+router.get(
+  "/:id",
+  estimateController.getEstimateById
+);
+
+// Update estimate status
+router.put(
+  "/:id/status",
+  estimateController.updateEstimateStatus
+);
+
+// Assign contractor
+router.put(
+  "/:id/assign",
+  estimateController.assignContractor
+);
+
+// Delete estimate
+router.delete(
+  "/:id",
+  estimateController.deleteEstimate
+);
+
 /* ===========================
-   GET USER ESTIMATES
+   CUSTOMER
 =========================== */
 
+// Create estimate
+router.post(
+  "/create",
+  estimateController.createEstimate
+);
+
+// Customer dashboard
 router.get(
   "/user/:userId",
   estimateController.getUserEstimates
 );
 
-/* ===========================
-   ASSIGN CONTRACTOR
-=========================== */
-
+// Edit estimate
 router.put(
-  "/assign",
-  estimateController.assignContractor
-);
-
-/* ===========================
-   UPDATE ESTIMATE
-=========================== */
-
-router.put(
-  "/:id",
+  "/edit/:id",
   estimateController.updateEstimate
-);
-
-/* ===========================
-   DELETE ESTIMATE
-=========================== */
-
-router.delete(
-  "/:id",
-  estimateController.deleteEstimate
 );
 
 module.exports = router;

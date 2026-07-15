@@ -13,6 +13,7 @@ async function createEstimate(
 ) {
 
   const result = await pool.query(
+
     `
     INSERT INTO estimates
     (
@@ -20,12 +21,14 @@ async function createEstimate(
       project_type,
       description,
       budget,
-      address
+      address,
+      status
     )
     VALUES
-    ($1,$2,$3,$4,$5)
+    ($1,$2,$3,$4,$5,'Pending')
     RETURNING *
     `,
+
     [
       userId,
       projectType,
@@ -33,6 +36,7 @@ async function createEstimate(
       budget,
       address
     ]
+
   );
 
   return result.rows[0];
@@ -46,14 +50,38 @@ async function createEstimate(
 async function getAllEstimates() {
 
   const result = await pool.query(
+
     `
     SELECT *
     FROM estimates
     ORDER BY created_at DESC
     `
+
   );
 
   return result.rows;
+
+}
+
+/* ===========================
+   GET ESTIMATE BY ID
+=========================== */
+
+async function getEstimateById(id) {
+
+  const result = await pool.query(
+
+    `
+    SELECT *
+    FROM estimates
+    WHERE id = $1
+    `,
+
+    [id]
+
+  );
+
+  return result.rows[0];
 
 }
 
@@ -64,13 +92,16 @@ async function getAllEstimates() {
 async function getUserEstimates(userId) {
 
   const result = await pool.query(
+
     `
     SELECT *
     FROM estimates
     WHERE user_id = $1
     ORDER BY created_at DESC
     `,
+
     [userId]
+
   );
 
   return result.rows;
@@ -90,23 +121,68 @@ async function updateEstimate(
 ) {
 
   const result = await pool.query(
+
     `
     UPDATE estimates
     SET
+
       project_type = $1,
+
       description = $2,
+
       budget = $3,
+
       address = $4
+
     WHERE id = $5
+
+    RETURNING *
+
+    `,
+
+    [
+
+      projectType,
+
+      description,
+
+      budget,
+
+      address,
+
+      id
+
+    ]
+
+  );
+
+  return result.rows[0];
+
+}
+
+/* ===========================
+   UPDATE STATUS
+=========================== */
+
+async function updateEstimateStatus(
+  id,
+  status
+) {
+
+  const result = await pool.query(
+
+    `
+    UPDATE estimates
+    SET status = $1
+    WHERE id = $2
     RETURNING *
     `,
+
     [
-      projectType,
-      description,
-      budget,
-      address,
+      status,
       id
     ]
+
   );
 
   return result.rows[0];
@@ -123,16 +199,29 @@ async function assignContractor(
 ) {
 
   const result = await pool.query(
+
     `
     UPDATE estimates
-    SET contractor_id = $1
+    SET
+
+      contractor_id = $1,
+
+      status = 'Assigned'
+
     WHERE id = $2
+
     RETURNING *
+
     `,
+
     [
+
       contractorId,
+
       estimateId
+
     ]
+
   );
 
   return result.rows[0];
@@ -146,20 +235,35 @@ async function assignContractor(
 async function deleteEstimate(id) {
 
   await pool.query(
+
     `
-    DELETE FROM estimates
+    DELETE
+    FROM estimates
     WHERE id = $1
     `,
+
     [id]
+
   );
 
 }
 
 module.exports = {
+
   createEstimate,
+
   getAllEstimates,
+
+  getEstimateById,
+
   getUserEstimates,
+
   updateEstimate,
+
+  updateEstimateStatus,
+
   assignContractor,
+
   deleteEstimate
+
 };

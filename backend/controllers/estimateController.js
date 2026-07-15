@@ -1,6 +1,90 @@
 const estimateModel = require("../models/estimateModel");
 
 /* ===========================
+   GET ALL ESTIMATES
+=========================== */
+
+exports.getAllEstimates = async (req, res) => {
+
+  try {
+
+    const estimates =
+      await estimateModel.getAllEstimates();
+
+    return res.json({
+
+      success: true,
+
+      estimates
+
+    });
+
+  } catch (err) {
+
+    console.error(err);
+
+    return res.status(500).json({
+
+      success: false,
+
+      message: "Unable to load estimates."
+
+    });
+
+  }
+
+};
+
+/* ===========================
+   GET ESTIMATE BY ID
+=========================== */
+
+exports.getEstimateById = async (req, res) => {
+
+  try {
+
+    const estimate =
+      await estimateModel.getEstimateById(
+        req.params.id
+      );
+
+    if (!estimate) {
+
+      return res.status(404).json({
+
+        success: false,
+
+        message: "Estimate not found."
+
+      });
+
+    }
+
+    return res.json({
+
+      success: true,
+
+      estimate
+
+    });
+
+  } catch (err) {
+
+    console.error(err);
+
+    return res.status(500).json({
+
+      success: false,
+
+      message: "Unable to load estimate."
+
+    });
+
+  }
+
+};
+
+/* ===========================
    CREATE ESTIMATE
 =========================== */
 
@@ -9,38 +93,40 @@ exports.createEstimate = async (req, res) => {
   try {
 
     const {
+
       userId,
+
       projectType,
+
       description,
+
       budget,
+
       address
+
     } = req.body;
 
-    if (
-      !userId ||
-      !projectType ||
-      !description ||
-      !budget ||
-      !address
-    ) {
-      return res.status(400).json({
-        success: false,
-        message: "Please complete all fields."
-      });
-    }
+    const estimate =
+      await estimateModel.createEstimate(
 
-    const estimate = await estimateModel.createEstimate(
-      userId,
-      projectType,
-      description,
-      budget,
-      address
-    );
+        userId,
+
+        projectType,
+
+        description,
+
+        budget,
+
+        address
+
+      );
 
     return res.status(201).json({
+
       success: true,
-      message: "Estimate submitted successfully.",
+
       estimate
+
     });
 
   } catch (err) {
@@ -48,36 +134,11 @@ exports.createEstimate = async (req, res) => {
     console.error(err);
 
     return res.status(500).json({
+
       success: false,
-      message: "Unable to submit estimate."
-    });
 
-  }
+      message: "Unable to create estimate."
 
-};
-
-/* ===========================
-   GET ALL ESTIMATES
-=========================== */
-
-exports.getAllEstimates = async (req, res) => {
-
-  try {
-
-    const estimates = await estimateModel.getAllEstimates();
-
-    return res.json({
-      success: true,
-      estimates
-    });
-
-  } catch (err) {
-
-    console.error(err);
-
-    return res.status(500).json({
-      success: false,
-      message: "Unable to load estimates."
     });
 
   }
@@ -92,14 +153,17 @@ exports.getUserEstimates = async (req, res) => {
 
   try {
 
-    const userId = req.params.userId;
-
     const estimates =
-      await estimateModel.getUserEstimates(userId);
+      await estimateModel.getUserEstimates(
+        req.params.userId
+      );
 
     return res.json({
+
       success: true,
+
       estimates
+
     });
 
   } catch (err) {
@@ -107,8 +171,11 @@ exports.getUserEstimates = async (req, res) => {
     console.error(err);
 
     return res.status(500).json({
+
       success: false,
+
       message: "Unable to load estimates."
+
     });
 
   }
@@ -123,28 +190,27 @@ exports.updateEstimate = async (req, res) => {
 
   try {
 
-    const id = req.params.id;
-
-    const {
-      projectType,
-      description,
-      budget,
-      address
-    } = req.body;
-
     const estimate =
       await estimateModel.updateEstimate(
-        id,
-        projectType,
-        description,
-        budget,
-        address
+
+        req.params.id,
+
+        req.body.projectType,
+
+        req.body.description,
+
+        req.body.budget,
+
+        req.body.address
+
       );
 
     return res.json({
+
       success: true,
-      message: "Estimate updated successfully.",
+
       estimate
+
     });
 
   } catch (err) {
@@ -152,8 +218,52 @@ exports.updateEstimate = async (req, res) => {
     console.error(err);
 
     return res.status(500).json({
+
       success: false,
+
       message: "Unable to update estimate."
+
+    });
+
+  }
+
+};
+
+/* ===========================
+   UPDATE STATUS
+=========================== */
+
+exports.updateEstimateStatus = async (req, res) => {
+
+  try {
+
+    const estimate =
+      await estimateModel.updateEstimateStatus(
+
+        req.params.id,
+
+        req.body.status
+
+      );
+
+    return res.json({
+
+      success: true,
+
+      estimate
+
+    });
+
+  } catch (err) {
+
+    console.error(err);
+
+    return res.status(500).json({
+
+      success: false,
+
+      message: "Unable to update status."
+
     });
 
   }
@@ -168,21 +278,21 @@ exports.assignContractor = async (req, res) => {
 
   try {
 
-    const {
-      estimateId,
-      contractorId
-    } = req.body;
-
     const estimate =
       await estimateModel.assignContractor(
-        estimateId,
-        contractorId
+
+        req.params.id,
+
+        req.body.contractorId
+
       );
 
     return res.json({
+
       success: true,
-      message: "Contractor assigned successfully.",
+
       estimate
+
     });
 
   } catch (err) {
@@ -190,8 +300,11 @@ exports.assignContractor = async (req, res) => {
     console.error(err);
 
     return res.status(500).json({
+
       success: false,
+
       message: "Unable to assign contractor."
+
     });
 
   }
@@ -206,13 +319,16 @@ exports.deleteEstimate = async (req, res) => {
 
   try {
 
-    const id = req.params.id;
-
-    await estimateModel.deleteEstimate(id);
+    await estimateModel.deleteEstimate(
+      req.params.id
+    );
 
     return res.json({
+
       success: true,
-      message: "Estimate deleted successfully."
+
+      message: "Estimate deleted."
+
     });
 
   } catch (err) {
@@ -220,8 +336,11 @@ exports.deleteEstimate = async (req, res) => {
     console.error(err);
 
     return res.status(500).json({
+
       success: false,
+
       message: "Unable to delete estimate."
+
     });
 
   }

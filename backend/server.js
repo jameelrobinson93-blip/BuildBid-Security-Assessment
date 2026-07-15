@@ -14,6 +14,7 @@ const reviewRoutes = require("./routes/reviewRoutes");
 const dashboardRoutes = require("./routes/dashboardRoutes");
 const adminRoutes = require("./routes/adminRoutes");
 const estimateRoutes = require("./routes/estimateRoutes");
+const adminUserRoutes = require("./routes/adminUserRoutes");
 
 const app = express();
 
@@ -78,6 +79,8 @@ app.use("/api/reviews", reviewRoutes);
 app.use("/api/dashboard", dashboardRoutes);
 
 app.use("/api/admin", adminRoutes);
+
+app.use("/api/admin", adminUserRoutes);
 
 app.use("/api/estimates", estimateRoutes);
 

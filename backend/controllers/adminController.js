@@ -1,134 +1,207 @@
-const db = require("../database/database");
+const pool = require("../database/postgres");
+const userModel = require("../models/userModel");
 
-exports.getOverview = (req, res) => {
+/* ===========================
+   DASHBOARD OVERVIEW
+=========================== */
 
-  const stats = {};
+exports.getOverview = async (req, res) => {
 
-  db.get(
-    "SELECT COUNT(*) AS total FROM users",
-    [],
-    (err, row) => {
+  try {
 
-      if (err) {
-        return res.status(500).json(err);
-      }
-
-      stats.users = row.total;
-
-      db.get(
-        "SELECT COUNT(*) AS total FROM contractors",
-        [],
-        (err, row) => {
-
-          if (err) {
-            return res.status(500).json(err);
-          }
-
-          stats.contractors = row.total;
-
-          db.get(
-            "SELECT COUNT(*) AS total FROM estimates",
-            [],
-            (err, row) => {
-
-              stats.estimates = row.total;
-
-              db.get(
-                "SELECT COUNT(*) AS total FROM reviews",
-                [],
-                (err, row) => {
-
-                  stats.reviews = row.total;
-
-                  db.get(
-                    "SELECT COUNT(*) AS total FROM security_logs WHERE status='SUCCESS'",
-                    [],
-                    (err, row) => {
-
-                      stats.successfulLogins = row.total;
-
-                      db.get(
-                        "SELECT COUNT(*) AS total FROM security_logs WHERE status='FAILED'",
-                        [],
-                        (err, row) => {
-
-                          stats.failedLogins = row.total;
-
-                          db.get(
-                            "SELECT COUNT(*) AS total FROM security_logs WHERE status='LOCKED'",
-                            [],
-                            (err, row) => {
-
-                              stats.lockedAccounts = row.total;
-
-                              db.get(
-                                "SELECT COUNT(*) AS total FROM security_logs WHERE status='XSS_BLOCKED'",
-                                [],
-                                (err, row) => {
-
-                                  stats.xssAttempts = row.total;
-
-                                  stats.securityScore = 98;
-
-                                  stats.platform = {
-                                    api: "Online",
-                                    database: "Connected",
-                                    jwt: "Active",
-                                    helmet: "Enabled",
-                                    rateLimiting: "Enabled"
-                                  };
-
-                                  res.json(stats);
-
-                                }
-                              );
-
-                            }
-                          );
-
-                        }
-                      );
-
-                    }
-                  );
-
-                }
-              );
-
-            }
-          );
-
-        }
+    const users =
+      await pool.query(
+        "SELECT COUNT(*) FROM users"
       );
 
-    }
-  );
+    const contractors =
+      await pool.query(
+        "SELECT COUNT(*) FROM contractors"
+      );
+
+    const estimates =
+      await pool.query(
+        "SELECT COUNT(*) FROM estimates"
+      );
+
+    const reviews =
+      await pool.query(
+        "SELECT COUNT(*) FROM reviews"
+      );
+
+    const success =
+      await pool.query(
+        "SELECT COUNT(*) FROM security_logs WHERE status = 'SUCCESS'"
+      );
+
+    const failed =
+      await pool.query(
+        "SELECT COUNT(*) FROM security_logs WHERE status = 'FAILED'"
+      );
+
+    const locked =
+      await pool.query(
+        "SELECT COUNT(*) FROM security_logs WHERE status = 'LOCKED'"
+      );
+
+    const xss =
+      await pool.query(
+        "SELECT COUNT(*) FROM security_logs WHERE status = 'XSS_BLOCKED'"
+      );
+
+    res.json({
+
+      securityScore: 98,
+
+      users: Number(users.rows[0].count),
+
+      contractors: Number(contractors.rows[0].count),
+
+      estimates: Number(estimates.rows[0].count),
+
+      reviews: Number(reviews.rows[0].count),
+
+      successfulLogins: Number(success.rows[0].count),
+
+      failedLogins: Number(failed.rows[0].count),
+
+      lockedAccounts: Number(locked.rows[0].count),
+
+      xssAttempts: Number(xss.rows[0].count)
+
+    });
+
+  } catch (err) {
+
+    console.error(err);
+
+    res.status(500).json({
+      success: false,
+      message: "Unable to load dashboard."
+    });
+
+  }
 
 };
 
-exports.getSecurityEvents = (req, res) => {
+/* ===========================
+   SECURITY EVENTS
+=========================== */
 
-  db.all(
-    `
-    SELECT
-      email,
-      status,
-      ip_address,
-      event_time
-    FROM security_logs
-    ORDER BY event_time DESC
-    LIMIT 25
-    `,
-    [],
-    (err, rows) => {
+exports.getSecurityEvents = async (req, res) => {
 
-      if (err) {
-        return res.status(500).json(err);
-      }
+  try {
 
-      res.json(rows);
+    const result = await pool.query(
+
+      `
+      SELECT
+        event_time,
+        email,
+        status,
+        ip_address
+      FROM security_logs
+      ORDER BY event_time DESC
+      LIMIT 100
+      `
+
+    );
+
+    res.json(result.rows);
+
+  } catch (err) {
+
+    console.error(err);
+
+    res.status(500).json({
+      success: false,
+      message: "Unable to load security events."
+    });
+
+  }
+
+};
+
+/* ===========================
+   GET ALL USERS
+=========================== */
+
+exports.getAllUsers = async (req, res) => {
+
+  try {
+
+    const users =
+      await userModel.getAllUsers();
+
+    res.json({
+
+      success: true,
+
+      users
+
+    });
+
+  } catch (err) {
+
+    console.error(err);
+
+    res.status(500).json({
+
+      success: false,
+
+      message: "Unable to load users."
+
+    });
+
+  }
+
+};
+
+/* ===========================
+   DELETE USER
+=========================== */
+
+exports.deleteUser = async (req, res) => {
+
+  try {
+
+    const id = req.params.id;
+
+    // Prevent deleting yourself
+    if (Number(id) === req.user?.id) {
+
+      return res.status(400).json({
+
+        success: false,
+
+        message: "You cannot delete your own administrator account."
+
+      });
 
     }
-  );
+
+    await userModel.deleteUser(id);
+
+    res.json({
+
+      success: true,
+
+      message: "User deleted successfully."
+
+    });
+
+  } catch (err) {
+
+    console.error(err);
+
+    res.status(500).json({
+
+      success: false,
+
+      message: "Unable to delete user."
+
+    });
+
+  }
 
 };

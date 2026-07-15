@@ -1,10 +1,38 @@
 const pool = require("../database/postgres");
 
 /* ===========================
+   FIND USER BY EMAIL
+=========================== */
+
+async function findUserByEmail(email) {
+
+  const result = await pool.query(
+
+    `
+    SELECT *
+    FROM users
+    WHERE email = $1
+    `,
+
+    [email]
+
+  );
+
+  return result.rows[0];
+
+}
+
+/* ===========================
    CREATE USER
 =========================== */
 
-async function createUser(firstName, lastName, email, password, role) {
+async function createUser(
+  firstName,
+  lastName,
+  email,
+  password,
+  role = "customer"
+) {
 
   const result = await pool.query(
 
@@ -32,41 +60,34 @@ async function createUser(firstName, lastName, email, password, role) {
 
   );
 
-  console.log("");
-  console.log("======================================");
-  console.log("✅ USER INSERTED INTO POSTGRESQL");
-  console.table(result.rows);
-  console.log("======================================");
-  console.log("");
-
   return result.rows[0];
 
 }
 
 /* ===========================
-   FIND USER
+   GET ALL USERS
 =========================== */
 
-async function findUserByEmail(email) {
+async function getAllUsers() {
 
   const result = await pool.query(
 
     `
-    SELECT *
+    SELECT
+      id,
+      first_name,
+      last_name,
+      email,
+      role,
+      failed_attempts,
+      locked_until
     FROM users
-    WHERE email = $1
-    `,
-
-    [email]
+    ORDER BY id DESC
+    `
 
   );
 
-  console.log("");
-  console.log("Searching PostgreSQL for:", email);
-  console.log("User Found:", result.rows.length);
-  console.log("");
-
-  return result.rows[0] || null;
+  return result.rows;
 
 }
 
@@ -74,7 +95,10 @@ async function findUserByEmail(email) {
    UPDATE FAILED ATTEMPTS
 =========================== */
 
-async function updateFailedAttempts(userId, attempts) {
+async function updateFailedAttempts(
+  id,
+  attempts
+) {
 
   await pool.query(
 
@@ -84,7 +108,10 @@ async function updateFailedAttempts(userId, attempts) {
     WHERE id = $2
     `,
 
-    [attempts, userId]
+    [
+      attempts,
+      id
+    ]
 
   );
 
@@ -94,17 +121,28 @@ async function updateFailedAttempts(userId, attempts) {
    LOCK ACCOUNT
 =========================== */
 
-async function lockAccount(userId, lockedUntil) {
+async function lockAccount(
+  id,
+  lockedUntil
+) {
 
   await pool.query(
 
     `
     UPDATE users
-    SET locked_until = $1
+    SET
+
+      failed_attempts = 5,
+
+      locked_until = $1
+
     WHERE id = $2
     `,
 
-    [lockedUntil, userId]
+    [
+      lockedUntil,
+      id
+    ]
 
   );
 
@@ -114,28 +152,61 @@ async function lockAccount(userId, lockedUntil) {
    RESET LOGIN ATTEMPTS
 =========================== */
 
-async function resetLoginAttempts(userId) {
+async function resetLoginAttempts(id) {
 
   await pool.query(
 
     `
     UPDATE users
     SET
+
       failed_attempts = 0,
-      locked_until = 0
+
+      locked_until = NULL
+
     WHERE id = $1
     `,
 
-    [userId]
+    [id]
+
+  );
+
+}
+
+/* ===========================
+   DELETE USER
+=========================== */
+
+async function deleteUser(id) {
+
+  await pool.query(
+
+    `
+    DELETE
+    FROM users
+    WHERE id = $1
+    `,
+
+    [id]
 
   );
 
 }
 
 module.exports = {
-  createUser,
+
   findUserByEmail,
+
+  createUser,
+
+  getAllUsers,
+
   updateFailedAttempts,
+
   lockAccount,
-  resetLoginAttempts
+
+  resetLoginAttempts,
+
+  deleteUser
+
 };
