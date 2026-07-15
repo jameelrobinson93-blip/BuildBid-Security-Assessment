@@ -3,10 +3,11 @@ import { Routes, Route, Navigate } from "react-router-dom";
 import ProtectedAdmin from "./ProtectedAdmin";
 
 import Dashboard from "./pages/Dashboard";
-import ContractorProfile from "./pages/ContractorProfile";
 import Users from "./pages/Users";
 import Contractors from "./pages/Contractors";
+import ContractorProfile from "./pages/ContractorProfile";
 import Estimates from "./pages/Estimates";
+import EstimateProfile from "./pages/EstimateProfile";
 import Reviews from "./pages/Reviews";
 import Security from "./pages/Security";
 import Analytics from "./pages/Analytics";
@@ -34,24 +35,25 @@ export default function AdminRoutes() {
           path="/users"
           element={<Users />}
         />
-<Route
-  path="/contractors/:id"
-  element={<ContractorProfile />}
-/>
+
         <Route
           path="/contractors"
           element={<Contractors />}
         />
-<Route
 
-  path="/estimates/:id"
+        <Route
+          path="/contractors/:id"
+          element={<ContractorProfile />}
+        />
 
-  element={<EstimateProfile />}
-
-/>
         <Route
           path="/estimates"
           element={<Estimates />}
+        />
+
+        <Route
+          path="/estimates/:id"
+          element={<EstimateProfile />}
         />
 
         <Route

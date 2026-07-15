@@ -8,6 +8,10 @@ import {
 
 import Navbar from "./components/Navbar";
 
+/* ===========================
+   PUBLIC PAGES
+=========================== */
+
 import Home from "./pages/Home";
 import About from "./pages/About";
 import HowItWorks from "./pages/HowItWorks";
@@ -19,7 +23,10 @@ import Reviews from "./pages/Reviews";
 import Dashboard from "./pages/Dashboard";
 import CreateEstimate from "./pages/CreateEstimate";
 import ContractorDashboard from "./pages/ContractorDashboard";
-import ContractorProfile from "./pages/ContractorProfile";
+
+/* ===========================
+   ADMIN
+=========================== */
 
 import AdminLogin from "./admin/AdminLogin";
 import AdminRoutes from "./admin/AdminRoutes";
@@ -37,25 +44,17 @@ function AppContent() {
 
     <>
 
-      {/* Hide public navbar on admin pages */}
-
       {!isAdminPage && <Navbar />}
 
       <Routes>
 
         {/* ===========================
-            PUBLIC PAGES
+            PUBLIC
         =========================== */}
 
-        <Route
-          path="/"
-          element={<Home />}
-        />
+        <Route path="/" element={<Home />} />
 
-        <Route
-          path="/search"
-          element={<Search />}
-        />
+        <Route path="/search" element={<Search />} />
 
         <Route
           path="/how-it-works"
@@ -97,10 +96,6 @@ function AppContent() {
           element={<Dashboard />}
         />
 
-        {/* ===========================
-            CONTRACTOR
-        =========================== */}
-
         <Route
           path="/contractor-dashboard"
           element={<ContractorDashboard />}
@@ -124,15 +119,11 @@ function AppContent() {
           path="/admin/login"
           element={<AdminLogin />}
         />
-<Route
-  path="/contractors/:id"
-  element={<ContractorProfile />}
-/>
 
         <Route
-  path="/admin/*"
-  element={<AdminRoutes />}
-/>
+          path="/admin/*"
+          element={<AdminRoutes />}
+        />
 
       </Routes>
 
