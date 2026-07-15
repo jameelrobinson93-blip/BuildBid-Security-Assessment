@@ -79,18 +79,77 @@ async function saveEstimate(id) {
         body: JSON.stringify(editForm),
       }
     );
+async function deleteEstimate(id) {
+
+  const confirmDelete = window.confirm(
+    "Are you sure you want to delete this estimate?"
+  );
+
+  if (!confirmDelete) return;
+
+  try {
+
+    const response = await fetch(
+      `${API_URL}/api/estimates/${id}`,
+      {
+        method: "DELETE",
+      }
+    );
 
     const data = await response.json();
 
     if (data.success) {
-      alert("Estimate updated successfully!");
 
-      setEditingEstimate(null);
+      alert("Estimate deleted successfully!");
 
-      window.location.reload();
+      setEstimates(
+        estimates.filter(
+          (estimate) => estimate.id !== id
+        )
+      );
+
     } else {
+
       alert(data.message);
+
     }
+
+  } catch (err) {
+
+    console.error(err);
+
+    alert("Unable to delete estimate.");
+
+  }
+
+}
+    const data = await response.json();
+
+   if (data.success) {
+
+  alert("Estimate updated successfully!");
+
+  setEditingEstimate(null);
+
+  setEstimates(
+    estimates.map((estimate) =>
+      estimate.id === id
+        ? {
+            ...estimate,
+            project_type: editForm.projectType,
+            description: editForm.description,
+            budget: editForm.budget,
+            address: editForm.address,
+          }
+        : estimate
+    )
+  );
+
+} else {
+
+  alert(data.message);
+
+}
 
   } catch (err) {
     console.error(err);
@@ -194,129 +253,138 @@ async function saveEstimate(id) {
 
           estimates.map((estimate) => (
 
-            <div
-              key={estimate.id}
-              className="estimate-card"
-            >
-
-              {editingEstimate === estimate.id ? (
-
-  <>
-
-    <input
-      value={editForm.projectType}
-      onChange={(e) =>
-        setEditForm({
-          ...editForm,
-          projectType: e.target.value
-        })
-      }
-      placeholder="Project Type"
-    />
-
-    <textarea
-      value={editForm.description}
-      onChange={(e) =>
-        setEditForm({
-          ...editForm,
-          description: e.target.value
-        })
-      }
-      placeholder="Description"
-    />
-
-    <input
-      value={editForm.budget}
-      onChange={(e) =>
-        setEditForm({
-          ...editForm,
-          budget: e.target.value
-        })
-      }
-      placeholder="Budget"
-    />
-
-    <input
-  value={editForm.address}
-  onChange={(e) =>
-    setEditForm({
-      ...editForm,
-      address: e.target.value
-    })
-  }
-  placeholder="Address"
-/>
-
-<div className="estimate-actions">
-
- <button
-  className="save-btn"
-  onClick={() => saveEstimate(estimate.id)}
->
-  Save Changes
-</button>
-
-  <button
-    className="cancel-btn"
-    onClick={() => setEditingEstimate(null)}
+  <div
+    key={estimate.id}
+    className="estimate-card"
   >
-    Cancel
-  </button>
 
-</div>
+    {editingEstimate === estimate.id ? (
 
-</>
+      <>
 
-) : (
+        <input
+          value={editForm.projectType}
+          onChange={(e) =>
+            setEditForm({
+              ...editForm,
+              projectType: e.target.value
+            })
+          }
+          placeholder="Project Type"
+        />
 
-  <>
+        <textarea
+          value={editForm.description}
+          onChange={(e) =>
+            setEditForm({
+              ...editForm,
+              description: e.target.value
+            })
+          }
+          placeholder="Description"
+        />
 
-    <h3>{estimate.project_type}</h3>
+        <input
+          value={editForm.budget}
+          onChange={(e) =>
+            setEditForm({
+              ...editForm,
+              budget: e.target.value
+            })
+          }
+          placeholder="Budget"
+        />
 
-    <p>
-      <strong>Status:</strong> {estimate.status}
-    </p>
+        <input
+          value={editForm.address}
+          onChange={(e) =>
+            setEditForm({
+              ...editForm,
+              address: e.target.value
+            })
+          }
+          placeholder="Address"
+        />
 
-    <p>
-      <strong>Budget:</strong> $
-      {Number(estimate.budget).toLocaleString()}
-    </p>
+        <div className="estimate-actions">
 
-    <p>
-      <strong>Address:</strong> {estimate.address}
-    </p>
+          <button
+            className="save-btn"
+            onClick={() => saveEstimate(estimate.id)}
+          >
+            Save Changes
+          </button>
 
-    <p>
-      <strong>Description:</strong> {estimate.description}
-    </p>
+          <button
+            className="cancel-btn"
+            onClick={() => setEditingEstimate(null)}
+          >
+            Cancel
+          </button>
 
-    <p>
-      <strong>Submitted:</strong>{" "}
-      {new Date(
-        estimate.created_at
-      ).toLocaleDateString()}
-    </p>
+        </div>
 
-  </>
+      </>
 
-)}
+    ) : (
 
-{editingEstimate !== estimate.id && (
+      <>
 
-<button
-  className="edit-btn"
-  onClick={() => startEditing(estimate)}
->
-  Edit
-</button>
+        <h3>{estimate.project_type}</h3>
 
-)}
+        <p>
+          <strong>Status:</strong> {estimate.status}
+        </p>
 
-<hr />
+        <p>
+          <strong>Budget:</strong> $
+          {Number(estimate.budget).toLocaleString()}
+        </p>
 
-</div>
+        <p>
+          <strong>Address:</strong> {estimate.address}
+        </p>
 
-          ))
+        <p>
+          <strong>Description:</strong> {estimate.description}
+        </p>
+
+        <p>
+          <strong>Submitted:</strong>{" "}
+          {new Date(estimate.created_at).toLocaleDateString()}
+        </p>
+
+      </>
+
+    )}
+
+    {editingEstimate !== estimate.id && (
+
+      <div className="estimate-actions">
+
+        <button
+          className="edit-btn"
+          onClick={() => startEditing(estimate)}
+        >
+          Edit
+        </button>
+
+        <button
+          className="delete-btn"
+          onClick={() => deleteEstimate(estimate.id)}
+        >
+          Delete
+        </button>
+
+      </div>
+
+    )}
+
+       <hr />
+
+  </div>
+
+))
 
         )}
 
