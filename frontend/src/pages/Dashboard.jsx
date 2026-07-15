@@ -28,9 +28,9 @@ const [editForm, setEditForm] = useState({
 
       try {
 
-        const response = await fetch(
-          `${API_URL}/api/estimates/${user.id}`
-        );
+       const response = await fetch(
+  `${API_URL}/api/estimates/user/${user.id}`
+);
 
         const data = await response.json();
 
@@ -70,15 +70,15 @@ const [editForm, setEditForm] = useState({
 async function saveEstimate(id) {
   try {
     const response = await fetch(
-      `${API_URL}/api/estimates/${id}`,
-      {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(editForm),
-      }
-    );
+  `${API_URL}/api/estimates/${id}`,
+  {
+    method: "PUT",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(editForm),
+  }
+);
 
     const data = await response.json();
 

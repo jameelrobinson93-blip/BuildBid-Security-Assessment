@@ -17,6 +17,7 @@ import Search from "./pages/Search";
 import Reviews from "./pages/Reviews";
 import Dashboard from "./pages/Dashboard";
 import CreateEstimate from "./pages/CreateEstimate";
+import ContractorDashboard from "./pages/ContractorDashboard";
 
 import AdminLogin from "./admin/AdminLogin";
 import AdminDashboard from "./admin/AdminDashboard";
@@ -61,7 +62,10 @@ function AppContent() {
   path="/create-estimate"
   element={<CreateEstimate />}
 />
-
+<Route
+  path="/contractor-dashboard"
+  element={<ContractorDashboard />}
+/>
         <Route
           path="/about"
           element={<About />}

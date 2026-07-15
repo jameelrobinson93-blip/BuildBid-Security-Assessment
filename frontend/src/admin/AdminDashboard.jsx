@@ -8,6 +8,9 @@ function AdminDashboard() {
     const [stats, setStats] = useState({});
 const [events, setEvents] = useState([]);
 const [lastUpdated, setLastUpdated] = useState("");
+const [estimates, setEstimates] = useState([]);
+const [contractors, setContractors] = useState([]);
+const [selectedContractors, setSelectedContractors] = useState({});
 
     useEffect(() => {
 
@@ -22,7 +25,54 @@ const [lastUpdated, setLastUpdated] = useState("");
     return () => clearInterval(interval);
 
 }, []);
+async function assignContractor(estimateId) {
 
+  const contractorId = selectedContractors[estimateId];
+
+  if (!contractorId) {
+    alert("Please select a contractor.");
+    return;
+  }
+
+  try {
+
+    const response = await fetch(
+      `${API_URL}/api/estimates/assign`,
+      {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          estimateId,
+          contractorId
+        })
+      }
+    );
+
+    const data = await response.json();
+
+    if (data.success) {
+
+      alert("Contractor assigned!");
+
+      loadDashboard();
+
+    } else {
+
+      alert(data.message);
+
+    }
+
+  } catch (err) {
+
+    console.error(err);
+
+    alert("Unable to assign contractor.");
+
+  }
+
+}
     async function loadDashboard() {
 
         const token = localStorage.getItem("token");
@@ -62,6 +112,26 @@ setEvents(Array.isArray(eventData) ? eventData : []);
 setLastUpdated(
     new Date().toLocaleTimeString()
 );
+
+const estimateResponse = await fetch(
+    `${API_URL}/api/estimates`
+);
+
+const estimateData = await estimateResponse.json();
+
+if (estimateData.success) {
+    setEstimates(estimateData.estimates);
+}
+
+const contractorResponse = await fetch(
+    `${API_URL}/api/contractors`
+);
+
+const contractorData = await contractorResponse.json();
+
+if (contractorData.success) {
+    setContractors(contractorData.contractors);
+}
 
         } catch (err) {
 
@@ -239,7 +309,86 @@ event.status === "SUCCESS"
 </div>
 
 </div>
+<h2 className="logs-title">
+  Assign Contractors
+</h2>
 
+<table>
+
+  <thead>
+
+    <tr>
+
+      <th>Project</th>
+
+      <th>Status</th>
+
+      <th>Assign Contractor</th>
+
+      <th>Action</th>
+
+    </tr>
+
+  </thead>
+
+  <tbody>
+
+    {estimates.map((estimate) => (
+
+      <tr key={estimate.id}>
+
+        <td>{estimate.project_type}</td>
+
+        <td>{estimate.status}</td>
+
+        <td>
+
+          <select
+            value={selectedContractors[estimate.id] || ""}
+            onChange={(e) =>
+              setSelectedContractors({
+                ...selectedContractors,
+                [estimate.id]: e.target.value
+              })
+            }
+          >
+
+            <option value="">
+              Select Contractor
+            </option>
+
+            {contractors.map((contractor) => (
+
+              <option
+                key={contractor.id}
+                value={contractor.id}
+              >
+            {contractor.company}
+              </option>
+
+            ))}
+
+          </select>
+
+        </td>
+
+        <td>
+
+          <button
+            onClick={() => assignContractor(estimate.id)}
+          >
+            Assign
+          </button>
+
+        </td>
+
+      </tr>
+
+    ))}
+
+  </tbody>
+
+</table>
 </div>
 
     );
