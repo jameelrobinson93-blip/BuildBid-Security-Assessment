@@ -101,3 +101,29 @@
     background:#B91C1C;
 
 }
+.estimate-card {
+  border: 1px solid #ddd;
+  border-radius: 10px;
+  padding: 20px;
+  margin-top: 20px;
+}
+
+.estimate-actions {
+  margin-top: 15px;
+}
+
+.edit-btn {
+  background: #2563EB;
+  color: white;
+  border: none;
+  padding: 10px 18px;
+  border-radius: 8px;
+  cursor: pointer;
+  pointer-events: auto;
+  position: relative;
+  z-index: 10;
+}
+
+.edit-btn:hover {
+  background: #1D4ED8;
+}

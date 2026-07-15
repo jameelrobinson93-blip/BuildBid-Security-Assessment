@@ -9,7 +9,16 @@ function Dashboard() {
 
   const user = JSON.parse(localStorage.getItem("user"));
 
-  const [estimates, setEstimates] = useState([]);
+const [estimates, setEstimates] = useState([]);
+
+const [editingEstimate, setEditingEstimate] = useState(null);
+
+const [editForm, setEditForm] = useState({
+  projectType: "",
+  description: "",
+  budget: "",
+  address: ""
+});
 
   useEffect(() => {
 
@@ -41,7 +50,53 @@ function Dashboard() {
 
     loadEstimates();
 
-  }, []);
+}, [user]);
+
+  function startEditing(estimate) {
+
+  console.log("Edit clicked", estimate);
+
+  setEditingEstimate(estimate.id);
+
+  setEditForm({
+    projectType: estimate.project_type,
+    description: estimate.description,
+    budget: estimate.budget,
+    address: estimate.address
+  });
+
+}
+
+async function saveEstimate(id) {
+  try {
+    const response = await fetch(
+      `${API_URL}/api/estimates/${id}`,
+      {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(editForm),
+      }
+    );
+
+    const data = await response.json();
+
+    if (data.success) {
+      alert("Estimate updated successfully!");
+
+      setEditingEstimate(null);
+
+      window.location.reload();
+    } else {
+      alert(data.message);
+    }
+
+  } catch (err) {
+    console.error(err);
+    alert("Unable to update estimate.");
+  }
+}
 
   function logout() {
 
@@ -144,65 +199,122 @@ function Dashboard() {
               className="estimate-card"
             >
 
-              <h3>
-                {estimate.project_type}
-              </h3>
+              {editingEstimate === estimate.id ? (
 
-              <p>
+  <>
 
-                <strong>Status:</strong>{" "}
+    <input
+      value={editForm.projectType}
+      onChange={(e) =>
+        setEditForm({
+          ...editForm,
+          projectType: e.target.value
+        })
+      }
+      placeholder="Project Type"
+    />
 
-                {estimate.status}
+    <textarea
+      value={editForm.description}
+      onChange={(e) =>
+        setEditForm({
+          ...editForm,
+          description: e.target.value
+        })
+      }
+      placeholder="Description"
+    />
 
-              </p>
+    <input
+      value={editForm.budget}
+      onChange={(e) =>
+        setEditForm({
+          ...editForm,
+          budget: e.target.value
+        })
+      }
+      placeholder="Budget"
+    />
 
-              <p>
+    <input
+  value={editForm.address}
+  onChange={(e) =>
+    setEditForm({
+      ...editForm,
+      address: e.target.value
+    })
+  }
+  placeholder="Address"
+/>
 
-                <strong>Budget:</strong>{" "}
+<div className="estimate-actions">
 
-                $
+ <button
+  className="save-btn"
+  onClick={() => saveEstimate(estimate.id)}
+>
+  Save Changes
+</button>
 
-                {Number(
-                  estimate.budget
-                ).toLocaleString()}
-
-              </p>
-
-              <p>
-
-                <strong>Address:</strong>{" "}
-
-                {estimate.address}
-
-              </p>
-
-              <p>
-
-                <strong>Description:</strong>{" "}
-
-                {estimate.description}
-
-              </p>
-
-              <p>
-
-                <strong>Submitted:</strong>{" "}
-
-                {new Date(
-                  estimate.created_at
-                ).toLocaleDateString()}
-
-              </p>
-
-            <div className="estimate-actions">
-  <button className="edit-btn">
-    Edit
+  <button
+    className="cancel-btn"
+    onClick={() => setEditingEstimate(null)}
+  >
+    Cancel
   </button>
 
-  <hr />
 </div>
 
-            </div>
+</>
+
+) : (
+
+  <>
+
+    <h3>{estimate.project_type}</h3>
+
+    <p>
+      <strong>Status:</strong> {estimate.status}
+    </p>
+
+    <p>
+      <strong>Budget:</strong> $
+      {Number(estimate.budget).toLocaleString()}
+    </p>
+
+    <p>
+      <strong>Address:</strong> {estimate.address}
+    </p>
+
+    <p>
+      <strong>Description:</strong> {estimate.description}
+    </p>
+
+    <p>
+      <strong>Submitted:</strong>{" "}
+      {new Date(
+        estimate.created_at
+      ).toLocaleDateString()}
+    </p>
+
+  </>
+
+)}
+
+{editingEstimate !== estimate.id && (
+
+ <button
+  className="edit-btn"
+  onClick={() => alert("Button clicked")}
+>
+  Edit
+</button>
+
+)}
+
+<hr />
+
+</div>
 
           ))
 
