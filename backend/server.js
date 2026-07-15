@@ -27,8 +27,8 @@ app.disable("x-powered-by");
 app.use(helmet());
 
 const limiter = rateLimit({
-  windowMs: 15 * 60 * 1000,
-  max: 100,
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 1000, // Temporary for development
   standardHeaders: true,
   legacyHeaders: false,
   message: {
