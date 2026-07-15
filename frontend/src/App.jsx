@@ -3,6 +3,7 @@ import {
   Routes,
   Route,
   useLocation,
+  Navigate,
 } from "react-router-dom";
 
 import Navbar from "./components/Navbar";
@@ -26,22 +27,35 @@ import ProtectedAdmin from "./admin/ProtectedAdmin";
 import "./App.css";
 
 function AppContent() {
+
   const location = useLocation();
 
-  const isAdminPage = location.pathname.startsWith("/admin");
+  const isAdminPage =
+    location.pathname.startsWith("/admin");
 
   return (
+
     <>
+
       {/* Hide public navbar on admin pages */}
+
       {!isAdminPage && <Navbar />}
 
       <Routes>
 
-        {/* Public Pages */}
+        {/* ===========================
+            PUBLIC PAGES
+        =========================== */}
 
-        <Route path="/" element={<Home />} />
+        <Route
+          path="/"
+          element={<Home />}
+        />
 
-        <Route path="/search" element={<Search />} />
+        <Route
+          path="/search"
+          element={<Search />}
+        />
 
         <Route
           path="/how-it-works"
@@ -54,18 +68,15 @@ function AppContent() {
         />
 
         <Route
+          path="/create-estimate"
+          element={<CreateEstimate />}
+        />
+
+        <Route
           path="/reviews"
           element={<Reviews />}
         />
 
-<Route
-  path="/create-estimate"
-  element={<CreateEstimate />}
-/>
-<Route
-  path="/contractor-dashboard"
-  element={<ContractorDashboard />}
-/>
         <Route
           path="/about"
           element={<About />}
@@ -76,24 +87,43 @@ function AppContent() {
           element={<Login />}
         />
 
-<Route
-  path="/dashboard"
-  element={<Dashboard />}
-/>
-
         <Route
           path="/register"
           element={<Register />}
         />
 
-        {/* Admin Login */}
+        <Route
+          path="/dashboard"
+          element={<Dashboard />}
+        />
+
+        {/* ===========================
+            CONTRACTOR
+        =========================== */}
+
+        <Route
+          path="/contractor-dashboard"
+          element={<ContractorDashboard />}
+        />
+
+        {/* ===========================
+            ADMIN
+        =========================== */}
+
+        <Route
+          path="/admin"
+          element={
+            <Navigate
+              to="/admin/login"
+              replace
+            />
+          }
+        />
 
         <Route
           path="/admin/login"
           element={<AdminLogin />}
         />
-
-        {/* Protected Admin Dashboard */}
 
         <Route
           path="/admin/dashboard"
@@ -105,14 +135,23 @@ function AppContent() {
         />
 
       </Routes>
+
     </>
+
   );
+
 }
 
 export default function App() {
+
   return (
+
     <BrowserRouter>
+
       <AppContent />
+
     </BrowserRouter>
+
   );
+
 }
