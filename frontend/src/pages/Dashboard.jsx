@@ -79,6 +79,40 @@ async function saveEstimate(id) {
         body: JSON.stringify(editForm),
       }
     );
+
+    const data = await response.json();
+
+   if (data.success) {
+
+  alert("Estimate updated successfully!");
+
+  setEditingEstimate(null);
+
+  setEstimates(
+    estimates.map((estimate) =>
+      estimate.id === id
+        ? {
+            ...estimate,
+            project_type: editForm.projectType,
+            description: editForm.description,
+            budget: editForm.budget,
+            address: editForm.address,
+          }
+        : estimate
+    )
+  );
+
+} else {
+
+  alert(data.message);
+
+}
+
+  } catch (err) {
+    console.error(err);
+    alert("Unable to update estimate.");
+  }
+}
 async function deleteEstimate(id) {
 
   const confirmDelete = window.confirm(
@@ -123,40 +157,6 @@ async function deleteEstimate(id) {
   }
 
 }
-    const data = await response.json();
-
-   if (data.success) {
-
-  alert("Estimate updated successfully!");
-
-  setEditingEstimate(null);
-
-  setEstimates(
-    estimates.map((estimate) =>
-      estimate.id === id
-        ? {
-            ...estimate,
-            project_type: editForm.projectType,
-            description: editForm.description,
-            budget: editForm.budget,
-            address: editForm.address,
-          }
-        : estimate
-    )
-  );
-
-} else {
-
-  alert(data.message);
-
-}
-
-  } catch (err) {
-    console.error(err);
-    alert("Unable to update estimate.");
-  }
-}
-
   function logout() {
 
     localStorage.removeItem("token");
