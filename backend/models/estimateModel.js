@@ -15,9 +15,9 @@ async function createEstimate(
   const result = await pool.query(
 
     `
-    INSERT INTO estimates
-    (
-      userid,
+   INSERT INTO estimates
+(
+  user_id,
       project_type,
       description,
       budget,
@@ -53,7 +53,7 @@ async function getUserEstimates(userId) {
     `
     SELECT *
     FROM estimates
-    WHERE userid = $1
+    WHERE user_id = $1
     ORDER BY created_at DESC
     `,
 
