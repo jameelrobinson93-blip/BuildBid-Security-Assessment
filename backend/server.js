@@ -27,8 +27,8 @@ app.disable("x-powered-by");
 app.use(helmet());
 
 const limiter = rateLimit({
-  windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 1000, // Temporary for development
+  windowMs: 15 * 60 * 1000,
+  max: 1000,
   standardHeaders: true,
   legacyHeaders: false,
   message: {
@@ -36,7 +36,7 @@ const limiter = rateLimit({
   }
 });
 
-app.use(limiter);
+// app.use(limiter);
 
 /* ===========================
    CORS
