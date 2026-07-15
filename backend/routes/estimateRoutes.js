@@ -1,4 +1,5 @@
 const express = require("express");
+
 const router = express.Router();
 
 const estimateController = require("../controllers/estimateController");
@@ -13,12 +14,30 @@ router.post(
 );
 
 /* ===========================
+   GET ALL ESTIMATES
+=========================== */
+
+router.get(
+  "/",
+  estimateController.getAllEstimates
+);
+
+/* ===========================
    GET USER ESTIMATES
 =========================== */
 
 router.get(
-  "/:userId",
+  "/user/:userId",
   estimateController.getUserEstimates
+);
+
+/* ===========================
+   ASSIGN CONTRACTOR
+=========================== */
+
+router.put(
+  "/assign",
+  estimateController.assignContractor
 );
 
 /* ===========================
@@ -30,6 +49,13 @@ router.put(
   estimateController.updateEstimate
 );
 
-router.delete("/:id", estimateController.deleteEstimate);
+/* ===========================
+   DELETE ESTIMATE
+=========================== */
+
+router.delete(
+  "/:id",
+  estimateController.deleteEstimate
+);
 
 module.exports = router;

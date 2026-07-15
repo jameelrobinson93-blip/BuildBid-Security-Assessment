@@ -57,6 +57,34 @@ exports.createEstimate = async (req, res) => {
 };
 
 /* ===========================
+   GET ALL ESTIMATES
+=========================== */
+
+exports.getAllEstimates = async (req, res) => {
+
+  try {
+
+    const estimates = await estimateModel.getAllEstimates();
+
+    return res.json({
+      success: true,
+      estimates
+    });
+
+  } catch (err) {
+
+    console.error(err);
+
+    return res.status(500).json({
+      success: false,
+      message: "Unable to load estimates."
+    });
+
+  }
+
+};
+
+/* ===========================
    GET USER ESTIMATES
 =========================== */
 
@@ -126,6 +154,44 @@ exports.updateEstimate = async (req, res) => {
     return res.status(500).json({
       success: false,
       message: "Unable to update estimate."
+    });
+
+  }
+
+};
+
+/* ===========================
+   ASSIGN CONTRACTOR
+=========================== */
+
+exports.assignContractor = async (req, res) => {
+
+  try {
+
+    const {
+      estimateId,
+      contractorId
+    } = req.body;
+
+    const estimate =
+      await estimateModel.assignContractor(
+        estimateId,
+        contractorId
+      );
+
+    return res.json({
+      success: true,
+      message: "Contractor assigned successfully.",
+      estimate
+    });
+
+  } catch (err) {
+
+    console.error(err);
+
+    return res.status(500).json({
+      success: false,
+      message: "Unable to assign contractor."
     });
 
   }

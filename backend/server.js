@@ -4,7 +4,6 @@ const express = require("express");
 const cors = require("cors");
 const helmet = require("helmet");
 const rateLimit = require("express-rate-limit");
-
 const pool = require("./database/postgres");
 
 // Routes
@@ -82,6 +81,8 @@ app.use("/api/admin", adminRoutes);
 
 app.use("/api/estimates", estimateRoutes);
 
+// Contractor Dashboard API
+app.use("/api/contractor", contractorRoutes);
 /* ===========================
    HOME
 =========================== */

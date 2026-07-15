@@ -13,11 +13,10 @@ async function createEstimate(
 ) {
 
   const result = await pool.query(
-
     `
-   INSERT INTO estimates
-(
-  user_id,
+    INSERT INTO estimates
+    (
+      user_id,
       project_type,
       description,
       budget,
@@ -27,7 +26,6 @@ async function createEstimate(
     ($1,$2,$3,$4,$5)
     RETURNING *
     `,
-
     [
       userId,
       projectType,
@@ -35,10 +33,27 @@ async function createEstimate(
       budget,
       address
     ]
-
   );
 
   return result.rows[0];
+
+}
+
+/* ===========================
+   GET ALL ESTIMATES
+=========================== */
+
+async function getAllEstimates() {
+
+  const result = await pool.query(
+    `
+    SELECT *
+    FROM estimates
+    ORDER BY created_at DESC
+    `
+  );
+
+  return result.rows;
 
 }
 
@@ -49,16 +64,13 @@ async function createEstimate(
 async function getUserEstimates(userId) {
 
   const result = await pool.query(
-
     `
     SELECT *
     FROM estimates
     WHERE user_id = $1
     ORDER BY created_at DESC
     `,
-
     [userId]
-
   );
 
   return result.rows;
@@ -78,7 +90,6 @@ async function updateEstimate(
 ) {
 
   const result = await pool.query(
-
     `
     UPDATE estimates
     SET
@@ -89,7 +100,6 @@ async function updateEstimate(
     WHERE id = $5
     RETURNING *
     `,
-
     [
       projectType,
       description,
@@ -97,7 +107,32 @@ async function updateEstimate(
       address,
       id
     ]
+  );
 
+  return result.rows[0];
+
+}
+
+/* ===========================
+   ASSIGN CONTRACTOR
+=========================== */
+
+async function assignContractor(
+  estimateId,
+  contractorId
+) {
+
+  const result = await pool.query(
+    `
+    UPDATE estimates
+    SET contractor_id = $1
+    WHERE id = $2
+    RETURNING *
+    `,
+    [
+      contractorId,
+      estimateId
+    ]
   );
 
   return result.rows[0];
@@ -111,21 +146,20 @@ async function updateEstimate(
 async function deleteEstimate(id) {
 
   await pool.query(
-
     `
     DELETE FROM estimates
     WHERE id = $1
     `,
-
     [id]
-
   );
 
 }
 
 module.exports = {
   createEstimate,
+  getAllEstimates,
   getUserEstimates,
   updateEstimate,
+  assignContractor,
   deleteEstimate
 };
