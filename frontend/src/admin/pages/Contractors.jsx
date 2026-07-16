@@ -24,19 +24,19 @@ export default function Contractors() {
 
       const response = await fetch(
 
-        `${API_URL}/api/contractors/all`,
+  `${API_URL}/api/contractors`,
 
-        {
+  {
 
-          headers: {
+    headers: {
 
-            Authorization: `Bearer ${token}`
+      Authorization: `Bearer ${token}`
 
-          }
+    }
 
-        }
+  }
 
-      );
+);
 
       const data = await response.json();
 
