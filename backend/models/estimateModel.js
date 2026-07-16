@@ -52,9 +52,19 @@ async function getAllEstimates() {
   const result = await pool.query(
 
     `
-    SELECT *
+    SELECT
+
+      estimates.*,
+
+      contractors.company AS contractor_name
+
     FROM estimates
-    ORDER BY created_at DESC
+
+    LEFT JOIN contractors
+
+      ON estimates.contractor_id = contractors.id
+
+    ORDER BY estimates.created_at DESC
     `
 
   );

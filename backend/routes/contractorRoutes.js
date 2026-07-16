@@ -14,6 +14,24 @@ router.get(
 );
 
 /* ===========================
+   ADD CONTRACTOR
+=========================== */
+
+router.post(
+  "/",
+  contractorController.addContractor
+);
+
+/* ===========================
+   UPDATE CONTRACTOR STATUS
+=========================== */
+
+router.put(
+  "/:id/status",
+  contractorController.updateContractorStatus
+);
+
+/* ===========================
    GET SINGLE CONTRACTOR
 =========================== */
 

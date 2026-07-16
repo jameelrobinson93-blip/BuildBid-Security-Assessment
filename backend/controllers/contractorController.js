@@ -236,3 +236,57 @@ exports.deleteContractor = async (req, res) => {
   }
 
 };
+/* ===========================
+   ADD CONTRACTOR
+=========================== */
+
+exports.addContractor = async (req, res) => {
+
+  try {
+
+    const {
+      company,
+      category,
+      city,
+      phone,
+      email,
+      description
+    } = req.body;
+
+    const contractor =
+      await contractorModel.addContractor({
+
+        company,
+        category,
+        city,
+        phone,
+        email,
+        description
+
+      });
+
+    return res.json({
+
+      success: true,
+
+      message: "Contractor added successfully.",
+
+      contractor
+
+    });
+
+  } catch (err) {
+
+    console.error(err);
+
+    return res.status(500).json({
+
+      success: false,
+
+      message: "Unable to add contractor."
+
+    });
+
+  }
+
+};
