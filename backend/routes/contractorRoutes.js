@@ -14,12 +14,30 @@ router.get(
 );
 
 /* ===========================
+   GET SINGLE CONTRACTOR
+=========================== */
+
+router.get(
+  "/:id",
+  contractorController.getContractorById
+);
+
+/* ===========================
    GET CONTRACTOR JOBS
 =========================== */
 
 router.get(
   "/jobs/:contractorId",
   contractorController.getContractorJobs
+);
+
+/* ===========================
+   DELETE CONTRACTOR
+=========================== */
+
+router.delete(
+  "/:id",
+  contractorController.deleteContractor
 );
 
 module.exports = router;

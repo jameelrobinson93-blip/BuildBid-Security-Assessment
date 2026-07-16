@@ -5,16 +5,26 @@ const router = express.Router();
 const adminController = require("../controllers/adminController");
 const verifyAdmin = require("../middleware/verifyAdmin");
 
+/* ===========================
+   USERS
+=========================== */
+
 router.get(
-  "/overview",
+  "/users",
   verifyAdmin,
-  adminController.getOverview
+  adminController.getAllUsers
 );
 
 router.get(
-  "/security-events",
+  "/users/:id",
   verifyAdmin,
-  adminController.getSecurityEvents
+  adminController.getUserById
+);
+
+router.delete(
+  "/users/:id",
+  verifyAdmin,
+  adminController.deleteUser
 );
 
 module.exports = router;

@@ -92,6 +92,35 @@ async function getAllUsers() {
 }
 
 /* ===========================
+   GET USER BY ID
+=========================== */
+
+async function getUserById(id) {
+
+  const result = await pool.query(
+
+    `
+    SELECT
+      id,
+      first_name,
+      last_name,
+      email,
+      role,
+      failed_attempts,
+      locked_until
+    FROM users
+    WHERE id = $1
+    `,
+
+    [id]
+
+  );
+
+  return result.rows[0];
+
+}
+
+/* ===========================
    UPDATE FAILED ATTEMPTS
 =========================== */
 
@@ -131,11 +160,8 @@ async function lockAccount(
     `
     UPDATE users
     SET
-
       failed_attempts = 5,
-
       locked_until = $1
-
     WHERE id = $2
     `,
 
@@ -159,11 +185,8 @@ async function resetLoginAttempts(id) {
     `
     UPDATE users
     SET
-
       failed_attempts = 0,
-
       locked_until = NULL
-
     WHERE id = $1
     `,
 
@@ -200,6 +223,8 @@ module.exports = {
   createUser,
 
   getAllUsers,
+
+  getUserById,
 
   updateFailedAttempts,
 

@@ -156,7 +156,54 @@ exports.getAllUsers = async (req, res) => {
   }
 
 };
+/* ===========================
+   GET SINGLE USER
+=========================== */
 
+exports.getUserById = async (req, res) => {
+
+  try {
+
+    const id = req.params.id;
+
+    const user =
+      await userModel.getUserById(id);
+
+    if (!user) {
+
+      return res.status(404).json({
+
+        success: false,
+
+        message: "User not found."
+
+      });
+
+    }
+
+    res.json({
+
+      success: true,
+
+      user
+
+    });
+
+  } catch (err) {
+
+    console.error(err);
+
+    res.status(500).json({
+
+      success: false,
+
+      message: "Unable to load user."
+
+    });
+
+  }
+
+};
 /* ===========================
    DELETE USER
 =========================== */

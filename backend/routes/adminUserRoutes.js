@@ -3,6 +3,7 @@ const express = require("express");
 const router = express.Router();
 
 const adminController = require("../controllers/adminController");
+const verifyAdmin = require("../middleware/verifyAdmin");
 
 /* ===========================
    USERS
@@ -11,12 +12,21 @@ const adminController = require("../controllers/adminController");
 // Get all users
 router.get(
   "/users",
+  verifyAdmin,
   adminController.getAllUsers
 );
 
-// Delete a user
+// Get single user
+router.get(
+  "/users/:id",
+  verifyAdmin,
+  adminController.getUserById
+);
+
+// Delete user
 router.delete(
   "/users/:id",
+  verifyAdmin,
   adminController.deleteUser
 );
 
