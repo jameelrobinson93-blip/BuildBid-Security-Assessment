@@ -2,47 +2,66 @@ import { NavLink } from "react-router-dom";
 
 export default function AdminSidebar() {
 
+  function logout() {
+
+    localStorage.removeItem("token");
+    localStorage.removeItem("user");
+    localStorage.removeItem("adminLoggedIn");
+
+    window.location.href="/admin/login";
+
+  }
+
   return (
 
-    <aside className="admin-sidebar">
+    <aside className="sidebar">
 
-      <h2>BuildBid Admin</h2>
+      <h2>BuildBid</h2>
 
       <nav>
 
         <NavLink to="/admin/dashboard">
-          Dashboard
+          📊 Dashboard
         </NavLink>
 
         <NavLink to="/admin/users">
-          Users
+          👤 Users
         </NavLink>
 
         <NavLink to="/admin/contractors">
-          Contractors
+          👷 Contractors
         </NavLink>
 
         <NavLink to="/admin/estimates">
-          Estimates
+          📄 Estimates
         </NavLink>
 
         <NavLink to="/admin/reviews">
-          Reviews
+          ⭐ Reviews
         </NavLink>
 
         <NavLink to="/admin/security">
-          Security
+          🔒 Security
         </NavLink>
 
         <NavLink to="/admin/analytics">
-          Analytics
+          📈 Analytics
         </NavLink>
 
         <NavLink to="/admin/settings">
-          Settings
+          ⚙ Settings
         </NavLink>
 
       </nav>
+
+      <button
+        className="logout-btn"
+        onClick={logout}
+      >
+
+        Logout
+
+      </button>
 
     </aside>
 

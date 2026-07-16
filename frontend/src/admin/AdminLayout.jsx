@@ -1,12 +1,11 @@
 import AdminSidebar from "./AdminSidebar";
-
 import "./Admin.css";
 
 export default function AdminLayout({ children }) {
 
   return (
 
-    <div className="admin-layout">
+    <div className="admin">
 
       <AdminSidebar />
 
