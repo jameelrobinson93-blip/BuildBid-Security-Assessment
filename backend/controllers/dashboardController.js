@@ -1,121 +1,91 @@
-const db = require("../database/database");
+const pool = require("../database/postgres");
 
-exports.getDashboardStats = (req, res) => {
+/* ===========================
+   DASHBOARD STATS
+=========================== */
 
-  const stats = {};
+exports.getDashboardStats = async (req, res) => {
 
-  db.get(
-    "SELECT COUNT(*) AS total FROM users",
-    [],
-    (err, row) => {
+  try {
 
-      if (err) {
-        return res.status(500).json(err);
-      }
-
-      stats.users = row.total;
-
-      db.get(
-        "SELECT COUNT(*) AS total FROM contractors",
-        [],
-        (err, row) => {
-
-          if (err) {
-            return res.status(500).json(err);
-          }
-
-          stats.contractors = row.total;
-
-          db.get(
-            "SELECT COUNT(*) AS total FROM reviews",
-            [],
-            (err, row) => {
-
-              if (err) {
-                return res.status(500).json(err);
-              }
-
-              stats.reviews = row.total;
-
-              db.get(
-                "SELECT COUNT(*) AS total FROM estimates",
-                [],
-                (err, row) => {
-
-                  if (err) {
-                    return res.status(500).json(err);
-                  }
-
-                  stats.estimates = row.total;
-
-                  db.get(
-                    `
-                    SELECT COUNT(*) AS total
-                    FROM security_logs
-                    WHERE status='SUCCESS'
-                    `,
-                    [],
-                    (err, row) => {
-
-                      stats.success = row.total;
-
-                      db.get(
-                        `
-                        SELECT COUNT(*) AS total
-                        FROM security_logs
-                        WHERE status='FAILED'
-                        `,
-                        [],
-                        (err, row) => {
-
-                          stats.failed = row.total;
-
-                          db.get(
-                            `
-                            SELECT COUNT(*) AS total
-                            FROM security_logs
-                            WHERE status='LOCKED'
-                            `,
-                            [],
-                            (err, row) => {
-
-                              stats.locked = row.total;
-
-                              db.get(
-                                `
-                                SELECT COUNT(*) AS total
-                                FROM security_logs
-                                WHERE status='XSS_BLOCKED'
-                                `,
-                                [],
-                                (err, row) => {
-
-                                  stats.xss = row.total;
-
-                                  res.json(stats);
-
-                                }
-                              );
-
-                            }
-                          );
-
-                        }
-                      );
-
-                    }
-                  );
-
-                }
-              );
-
-            }
-          );
-
-        }
+    const users =
+      await pool.query(
+        "SELECT COUNT(*) FROM users"
       );
 
-    }
-  );
+    const contractors =
+      await pool.query(
+        "SELECT COUNT(*) FROM contractors"
+      );
+
+    const estimates =
+      await pool.query(
+        "SELECT COUNT(*) FROM estimates"
+      );
+
+    const reviews =
+      await pool.query(
+        "SELECT COUNT(*) FROM reviews"
+      );
+
+    const success =
+      await pool.query(
+        "SELECT COUNT(*) FROM security_logs WHERE status='SUCCESS'"
+      );
+
+    const failed =
+      await pool.query(
+        "SELECT COUNT(*) FROM security_logs WHERE status='FAILED'"
+      );
+
+    const locked =
+      await pool.query(
+        "SELECT COUNT(*) FROM security_logs WHERE status='LOCKED'"
+      );
+
+    const xss =
+      await pool.query(
+        "SELECT COUNT(*) FROM security_logs WHERE status='XSS_BLOCKED'"
+      );
+
+    return res.json({
+
+      success: true,
+
+      stats: {
+
+        users: Number(users.rows[0].count),
+
+        contractors: Number(contractors.rows[0].count),
+
+        estimates: Number(estimates.rows[0].count),
+
+        reviews: Number(reviews.rows[0].count),
+
+        successLogins: Number(success.rows[0].count),
+
+        failedLogins: Number(failed.rows[0].count),
+
+        lockedAccounts: Number(locked.rows[0].count),
+
+        blockedXSS: Number(xss.rows[0].count)
+
+      }
+
+    });
+
+  } catch (err) {
+
+    console.error(err);
+
+    return res.status(500).json({
+
+      success: false,
+
+      message: "Unable to load dashboard statistics."
+
+    });
+
+  }
 
 };
