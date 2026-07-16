@@ -5,6 +5,7 @@ import ProtectedAdmin from "./ProtectedAdmin";
 import Dashboard from "./pages/Dashboard";
 import Users from "./pages/Users";
 import Contractors from "./pages/Contractors";
+import AddContractor from "./pages/AddContractor";
 import ContractorProfile from "./pages/ContractorProfile";
 import Estimates from "./pages/Estimates";
 import EstimateProfile from "./pages/EstimateProfile";
@@ -39,6 +40,11 @@ export default function AdminRoutes() {
         <Route
           path="/contractors"
           element={<Contractors />}
+        />
+
+        <Route
+          path="/add-contractor"
+          element={<AddContractor />}
         />
 
         <Route

@@ -168,158 +168,154 @@ export default function Contractors() {
 
   }
 
-  const filteredContractors = contractors.filter(
+  const filteredContractors = contractors.filter((contractor) => {
+  return contractor.company
+    .toLowerCase()
+    .includes(search.toLowerCase());
+});
 
-    (contractor) => {
+return (
+  <AdminLayout>
+    <div className="admin-content">
 
-      return (
+      <div className="page-header">
+        <div>
+          <h1>Contractor Management</h1>
+          <p>Manage all contractors registered on BuildBid.</p>
+        </div>
 
-        contractor.company
+        <button
+          className="primary-btn"
+          onClick={() => navigate("/admin/add-contractor")}
+        >
+          + Add Contractor
+        </button>
+      </div>
 
-          .toLowerCase()
+      <div className="dashboard-cards">
 
-          .includes(search.toLowerCase())
+        <div className="dashboard-card">
+          <h2>Total Contractors</h2>
+          <h1>{contractors.length}</h1>
+        </div>
 
-      );
+        <div className="dashboard-card">
+          <h2>Active</h2>
+          <h1>
+            {contractors.filter(c => c.status !== "Suspended").length}
+          </h1>
+        </div>
 
-    }
+        <div className="dashboard-card">
+          <h2>Suspended</h2>
+          <h1>
+            {contractors.filter(c => c.status === "Suspended").length}
+          </h1>
+        </div>
 
-  );
+        <div className="dashboard-card">
+          <h2>Search Results</h2>
+          <h1>{filteredContractors.length}</h1>
+        </div>
 
-  return (
-
-    <AdminLayout>
-
-      <h1>Contractor Management</h1>
+      </div>
 
       <input
-
-        className="search-box"
-
+        className="search-input"
         type="text"
-
         placeholder="Search Contractors..."
-
         value={search}
-
-        onChange={(e)=>setSearch(e.target.value)}
-
+        onChange={(e) => setSearch(e.target.value)}
       />
 
-      <table className="admin-table">
+      <div className="activity-panel">
+        <table>
 
-        <thead>
+          <thead>
+            <tr>
+              <th>Company</th>
+              <th>Status</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
 
-          <tr>
+          <tbody>
 
-            <th>Company</th>
+  {filteredContractors.length === 0 ? (
 
-            <th>Status</th>
+    <tr>
+      <td colSpan="3" style={{ textAlign: "center", padding: "40px" }}>
+        No contractors found.
+      </td>
+    </tr>
 
-            <th>Actions</th>
+  ) : (
 
-          </tr>
+    filteredContractors.map((contractor) => (
 
-        </thead>
+      <tr key={contractor.id}>
 
-        <tbody>
+        <td>{contractor.company}</td>
 
-          {
+        <td>
+          <span
+            className={
+              contractor.status === "Suspended"
+                ? "status-badge suspended"
+                : "status-badge active"
+            }
+          >
+            {contractor.status || "Active"}
+          </span>
+        </td>
 
-            filteredContractors.map(
+        <td>
 
-              (contractor)=>(
+          <div className="action-buttons">
 
-                <tr key={contractor.id}>
+            <button
+              className="view-btn"
+              onClick={() =>
+                navigate(`/admin/contractors/${contractor.id}`)
+              }
+            >
+              View
+            </button>
 
-                  <td>
+            <button
+              className="status-btn"
+              onClick={() => updateStatus(contractor)}
+            >
+              {contractor.status === "Suspended"
+                ? "Activate"
+                : "Suspend"}
+            </button>
 
-                    {contractor.company}
+            <button
+              className="delete-btn"
+              onClick={() =>
+                deleteContractor(contractor.id)
+              }
+            >
+              Delete
+            </button>
 
-                  </td>
+          </div>
 
-                  <td>
+        </td>
 
-                    {contractor.status || "Active"}
+      </tr>
 
-                  </td>
+    ))
 
-                  <td>
+  )}
 
-                    <button
+</tbody>
 
-                      onClick={()=>
+        </table>
+      </div>
 
-                        navigate(
-
-                          `/admin/contractors/${contractor.id}`
-
-                        )
-
-                      }
-
-                    >
-
-                      View
-
-                    </button>
-
-                    <button
-
-                      onClick={()=>
-
-                        updateStatus(contractor)
-
-                      }
-
-                    >
-
-                      {
-
-                        contractor.status==="Suspended"
-
-                        ? "Activate"
-
-                        : "Suspend"
-
-                      }
-
-                    </button>
-
-                    <button
-
-                      onClick={()=>
-
-                        deleteContractor(
-
-                          contractor.id
-
-                        )
-
-                      }
-
-                    >
-
-                      Delete
-
-                    </button>
-
-                  </td>
-
-                </tr>
-
-              )
-
-            )
-
-          }
-
-        </tbody>
-
-      </table>
-
-    </AdminLayout>
-
-  );
-
+    </div>
+  </AdminLayout>
+);
 }

@@ -74,22 +74,23 @@ export default function ContractorProfile() {
     <AdminLayout>
 
       <button
-
+        className="primary-btn"
         onClick={() => navigate(-1)}
-
       >
-
         ← Back
-
       </button>
 
-      <h1>
+      <div className="page-header">
 
-        {contractor.company}
+        <div>
 
-      </h1>
+          <h1>{contractor.company}</h1>
 
-      <hr />
+          <p>Contractor Profile</p>
+
+        </div>
+
+      </div>
 
       <div className="profile-grid">
 
@@ -101,9 +102,15 @@ export default function ContractorProfile() {
 
             <strong>Company:</strong>
 
-            {" "}
+            {` ${contractor.company}`}
 
-            {contractor.company}
+          </p>
+
+          <p>
+
+            <strong>Specialty:</strong>
+
+            {` ${contractor.specialty}`}
 
           </p>
 
@@ -111,19 +118,7 @@ export default function ContractorProfile() {
 
             <strong>Status:</strong>
 
-            {" "}
-
-            {contractor.status || "Active"}
-
-          </p>
-
-          <p>
-
-            <strong>Rating:</strong>
-
-            {" "}
-
-            {contractor.rating || "N/A"}
+            {` ${contractor.status}`}
 
           </p>
 
@@ -131,15 +126,13 @@ export default function ContractorProfile() {
 
         <div className="profile-card">
 
-          <h2>Contact</h2>
+          <h2>Location</h2>
 
           <p>
 
-            <strong>Email:</strong>
+            <strong>City:</strong>
 
-            {" "}
-
-            {contractor.email}
+            {` ${contractor.city}`}
 
           </p>
 
@@ -147,55 +140,7 @@ export default function ContractorProfile() {
 
             <strong>Phone:</strong>
 
-            {" "}
-
-            {contractor.phone}
-
-          </p>
-
-          <p>
-
-            <strong>Address:</strong>
-
-            {" "}
-
-            {contractor.address}
-
-          </p>
-
-        </div>
-
-        <div className="profile-card">
-
-          <h2>Business Details</h2>
-
-          <p>
-
-            <strong>License:</strong>
-
-            {" "}
-
-            {contractor.license_number || "Not Provided"}
-
-          </p>
-
-          <p>
-
-            <strong>Insurance:</strong>
-
-            {" "}
-
-            {contractor.insurance || "Not Provided"}
-
-          </p>
-
-          <p>
-
-            <strong>Years in Business:</strong>
-
-            {" "}
-
-            {contractor.years_experience || "N/A"}
+            {` ${contractor.phone}`}
 
           </p>
 
@@ -207,31 +152,9 @@ export default function ContractorProfile() {
 
           <p>
 
-            <strong>Completed Jobs:</strong>
+            <strong>Rating:</strong>
 
-            {" "}
-
-            {contractor.jobs_completed || 0}
-
-          </p>
-
-          <p>
-
-            <strong>Pending Jobs:</strong>
-
-            {" "}
-
-            {contractor.jobs_pending || 0}
-
-          </p>
-
-          <p>
-
-            <strong>Average Rating:</strong>
-
-            {" "}
-
-            {contractor.rating || "N/A"}
+            {` ${contractor.rating}`}
 
           </p>
 

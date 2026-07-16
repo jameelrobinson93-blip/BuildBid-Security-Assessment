@@ -85,7 +85,57 @@ export default function Estimates() {
         }
 
       );
+async function updateStatus(id, status) {
 
+  const token = localStorage.getItem("token");
+
+  try {
+
+    const response = await fetch(
+
+      `${API_URL}/api/estimates/${id}/status`,
+
+      {
+
+        method: "PUT",
+
+        headers: {
+
+          "Content-Type": "application/json",
+
+          Authorization: `Bearer ${token}`
+
+        },
+
+        body: JSON.stringify({
+
+          status
+
+        })
+
+      }
+
+    );
+
+    const data = await response.json();
+
+    if (data.success) {
+
+      loadEstimates();
+
+    } else {
+
+      alert(data.message);
+
+    }
+
+  } catch (err) {
+
+    console.error(err);
+
+  }
+
+}
       const data = await response.json();
 
       if (data.success) {
@@ -142,21 +192,90 @@ export default function Estimates() {
 
     <AdminLayout>
 
-      <h1>Estimate Management</h1>
+      <div className="page-header">
 
-      <input
+  <div>
 
-        className="search-box"
+    <h1>Estimate Management</h1>
 
-        type="text"
+    <p>Manage customer estimate requests.</p>
 
-        placeholder="Search estimates..."
+  </div>
 
-        value={search}
+  <button
+    className="primary-btn"
+    onClick={loadEstimates}
+  >
+    Refresh
+  </button>
 
-        onChange={(e)=>setSearch(e.target.value)}
+</div>
 
-      />
+<div className="dashboard-cards">
+
+  <div className="dashboard-card">
+
+    <h2>Total Estimates</h2>
+
+    <h1>{estimates.length}</h1>
+
+  </div>
+
+  <div className="dashboard-card">
+
+    <h2>Pending</h2>
+
+    <h1>
+
+      {
+        estimates.filter(
+          e => e.status === "Pending"
+        ).length
+      }
+
+    </h1>
+
+  </div>
+
+  <div className="dashboard-card">
+
+    <h2>Assigned</h2>
+
+    <h1>
+
+      {
+        estimates.filter(
+          e => e.contractor_id
+        ).length
+      }
+
+    </h1>
+
+  </div>
+
+  <div className="dashboard-card">
+
+    <h2>Search Results</h2>
+
+    <h1>{filteredEstimates.length}</h1>
+
+  </div>
+
+</div>
+
+<input
+
+  className="search-input"
+
+  type="text"
+
+  placeholder="Search estimates..."
+
+  value={search}
+
+  onChange={(e)=>setSearch(e.target.value)}
+
+/>
 
       <table className="admin-table">
 
@@ -196,9 +315,19 @@ export default function Estimates() {
 
                 <td>
 
-                  {estimate.status}
+  <span
+    className={
+      estimate.status === "Completed"
+        ? "status-badge completed"
+        : estimate.status === "Approved"
+        ? "status-badge approved"
+        : "status-badge pending"
+    }
+  >
+    {estimate.status || "Pending"}
+  </span>
 
-                </td>
+</td>
 
                 <td>
 
@@ -212,78 +341,64 @@ export default function Estimates() {
 
                 </td>
 
-                <td>
+               <td>
 
-                  {
+  {estimate.contractor_name || "Unassigned"}
 
-                    estimate.contractor_id
-
-                    ? estimate.contractor_id
-
-                    : "Unassigned"
-
-                  }
-
-                </td>
+</td>
 
                 <td>
 
-                  <button
+  <div className="action-buttons">
 
-                    onClick={()=>
+  <button
+    className="view-btn"
+    onClick={() =>
+      navigate(`/admin/estimates/${estimate.id}`)
+    }
+  >
+    View
+  </button>
 
-                      navigate(
+  <button
+    className="approve-btn"
+    onClick={() =>
+      updateStatus(estimate.id, "Approved")
+    }
+  >
+    Approve
+  </button>
 
-                        `/admin/estimates/${estimate.id}`
+  <button
+    className="assign-btn"
+    onClick={() =>
+      assignContractor(estimate.id)
+    }
+  >
+    Assign
+  </button>
 
-                      )
+  <button
+    className="complete-btn"
+    onClick={() =>
+      updateStatus(estimate.id, "Completed")
+    }
+  >
+    Complete
+  </button>
 
-                    }
+  <button
+    className="delete-btn"
+    onClick={() =>
+      deleteEstimate(estimate.id)
+    }
+  >
+    Delete
+  </button>
 
-                  >
+</div>
 
-                    View
-
-                  </button>
-
-                  <button
-
-                    onClick={()=>
-
-                      assignContractor(
-
-                        estimate.id
-
-                      )
-
-                    }
-
-                  >
-
-                    Assign
-
-                  </button>
-
-                  <button
-
-                    onClick={()=>
-
-                      deleteEstimate(
-
-                        estimate.id
-
-                      )
-
-                    }
-
-                  >
-
-                    Delete
-
-                  </button>
-
-                </td>
-
+</td>
               </tr>
 
             ))

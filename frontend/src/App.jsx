@@ -13,6 +13,7 @@ import Navbar from "./components/Navbar";
 =========================== */
 
 import Home from "./pages/Home";
+import AddContractor from "./admin/pages/AddContractor";
 import About from "./pages/About";
 import HowItWorks from "./pages/HowItWorks";
 import Login from "./pages/Login";
