@@ -1,19 +1,40 @@
 const express = require("express");
+
 const router = express.Router();
 
 const securityLog = require("../models/securityLogModel");
 
-router.get("/logs", (req, res) => {
+/* ===========================
+   GET SECURITY LOGS
+=========================== */
 
-    securityLog.getLogs((err, rows) => {
+router.get("/logs", async (req, res) => {
 
-        if (err) {
-            return res.status(500).json(err);
-        }
+  try {
 
-        res.json(rows);
+    const logs = await securityLog.getLogs();
+
+    res.json({
+
+      success: true,
+
+      logs
 
     });
+
+  } catch (err) {
+
+    console.error(err);
+
+    res.status(500).json({
+
+      success: false,
+
+      message: "Unable to load security logs."
+
+    });
+
+  }
 
 });
 

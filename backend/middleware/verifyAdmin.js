@@ -2,6 +2,12 @@ const jwt = require("jsonwebtoken");
 
 module.exports = function verifyAdmin(req, res, next) {
 
+  console.log("==================================");
+  console.log("ADMIN REQUEST RECEIVED");
+  console.log("Headers:", req.headers);
+  console.log("Authorization:", req.headers.authorization);
+  console.log("==================================");
+
   const authHeader = req.headers.authorization;
 
   if (!authHeader) {
@@ -11,7 +17,9 @@ module.exports = function verifyAdmin(req, res, next) {
     });
   }
 
-  const token = authHeader.replace("Bearer ", "");
+  const token = authHeader.startsWith("Bearer ")
+    ? authHeader.substring(7)
+    : authHeader;
 
   try {
 
@@ -31,7 +39,9 @@ module.exports = function verifyAdmin(req, res, next) {
 
     next();
 
-  } catch (error) {
+  } catch (err) {
+
+    console.error("JWT Error:", err.message);
 
     return res.status(401).json({
       success: false,
