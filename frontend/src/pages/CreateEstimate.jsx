@@ -1,9 +1,8 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import API_URL from "../config.js";
+import API_URL from "../config";
 
 function CreateEstimate() {
-
   const navigate = useNavigate();
 
   const storedUser = localStorage.getItem("user");
@@ -16,17 +15,16 @@ function CreateEstimate() {
     address: ""
   });
 
-  function handleChange(e) {
+  const [loading, setLoading] = useState(false);
 
+  function handleChange(e) {
     setForm({
       ...form,
       [e.target.name]: e.target.value
     });
-
   }
 
   async function submitEstimate(e) {
-
     e.preventDefault();
 
     if (!user) {
@@ -35,10 +33,11 @@ function CreateEstimate() {
       return;
     }
 
-    try {
+    setLoading(true);
 
+    try {
       const response = await fetch(
-        `${API_URL}/api/estimates`,
+        `${API_URL}/api/estimates/create`,
         {
           method: "POST",
           headers: {
@@ -56,8 +55,11 @@ function CreateEstimate() {
 
       const data = await response.json();
 
-      if (data.success) {
+      if (!response.ok) {
+        throw new Error(data.message || "Unable to submit estimate.");
+      }
 
+      if (data.success) {
         alert("Estimate submitted successfully!");
 
         setForm({
@@ -68,24 +70,24 @@ function CreateEstimate() {
         });
 
         navigate("/dashboard");
-
       } else {
-
-        alert(data.message);
-
+        alert(data.message || "Unable to submit estimate.");
       }
 
     } catch (err) {
 
-      console.error(err);
-      alert("Unable to submit estimate.");
+      console.error("Estimate Error:", err);
+
+      alert(err.message || "Unable to submit estimate.");
+
+    } finally {
+
+      setLoading(false);
 
     }
-
   }
 
   return (
-
     <div className="login-page">
 
       <div className="login-card">
@@ -134,8 +136,11 @@ function CreateEstimate() {
             required
           />
 
-          <button type="submit">
-            Submit Estimate
+          <button
+            type="submit"
+            disabled={loading}
+          >
+            {loading ? "Submitting..." : "Submit Estimate"}
           </button>
 
         </form>
@@ -143,9 +148,7 @@ function CreateEstimate() {
       </div>
 
     </div>
-
   );
-
 }
 
 export default CreateEstimate;
