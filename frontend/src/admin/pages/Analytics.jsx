@@ -4,508 +4,672 @@ import AdminLayout from "../AdminLayout";
 
 import {
   ResponsiveContainer,
+  AreaChart,
+  Area,
   BarChart,
   Bar,
-  XAxis,
-  YAxis,
-  Tooltip,
   PieChart,
   Pie,
   Cell,
-  Legend
+  Tooltip,
+  Legend,
+  XAxis,
+  YAxis
 } from "recharts";
+
+import {
+  Users,
+  Hammer,
+  FileText,
+  CheckCircle2,
+  RefreshCw,
+  TrendingUp,
+  DollarSign,
+  Activity
+} from "lucide-react";
 
 export default function Analytics() {
 
-  const [users, setUsers] = useState([]);
-  const [contractors, setContractors] = useState([]);
-  const [estimates, setEstimates] = useState([]);
+  const [users,setUsers]=useState([]);
+  const [contractors,setContractors]=useState([]);
+  const [estimates,setEstimates]=useState([]);
 
-  useEffect(() => {
+  useEffect(()=>{
 
     loadAnalytics();
 
-  }, []);
+  },[]);
 
-async function loadAnalytics() {
+  async function loadAnalytics(){
 
-  const token = localStorage.getItem("token");
+    const token=localStorage.getItem("token");
 
-  // ===========================
-  // USERS
-  // ===========================
+    try{
 
-  try {
+      const userResponse=await fetch(
 
-    const response = await fetch(`${API_URL}/api/admin/users`, {
-        headers: {
-          Authorization: `Bearer ${token}`
+        `${API_URL}/api/admin/users`,
+
+        {
+          headers:{
+            Authorization:`Bearer ${token}`
+          }
         }
+
+      );
+
+      const userData=await userResponse.json();
+
+      if(userData.success){
+
+        setUsers(userData.users);
+
       }
-    );
 
-    const data = await response.json();
+      const contractorResponse=await fetch(
 
-    if (data.success) {
-      setUsers(data.users);
+        `${API_URL}/api/contractors`,
+
+        {
+          headers:{
+            Authorization:`Bearer ${token}`
+          }
+        }
+
+      );
+
+      const contractorData=await contractorResponse.json();
+
+      if(contractorData.success){
+
+        setContractors(contractorData.contractors);
+
+      }
+
+      const estimateResponse=await fetch(
+
+        `${API_URL}/api/estimates`,
+
+        {
+          headers:{
+            Authorization:`Bearer ${token}`
+          }
+        }
+
+      );
+
+      const estimateData=await estimateResponse.json();
+
+      if(estimateData.success){
+
+        setEstimates(estimateData.estimates);
+
+      }
+
+    }catch(err){
+
+      console.error(err);
+
     }
 
-  } catch (err) {
-
-    console.error("Users API Error:", err);
-
   }
 
-  // ===========================
-  // CONTRACTORS
-  // ===========================
+  const pending=estimates.filter(
+    e=>e.status==="Pending"
+  ).length;
 
-  try {
+  const approved=estimates.filter(
+    e=>e.status==="Approved"
+  ).length;
 
-    const response = await fetch(
-      `${API_URL}/api/contractors`,
-      {
-        headers: {
-          Authorization: `Bearer ${token}`
-        }
-      }
-    );
+  const assigned=estimates.filter(
+    e=>e.status==="Assigned"
+  ).length;
 
-    const data = await response.json();
+  const completed=estimates.filter(
+    e=>e.status==="Completed"
+  ).length;
 
-    if (data.success) {
-      setContractors(data.contractors);
+  const totalRevenue=
+    completed*2500;
+
+  const completionRate=
+
+    estimates.length===0
+
+      ?0
+
+      :Math.round(
+
+          (completed/estimates.length)*100
+
+        );
+
+  const estimateStatus=[
+
+    {
+      name:"Pending",
+      value:pending
+    },
+
+    {
+      name:"Approved",
+      value:approved
+    },
+
+    {
+      name:"Assigned",
+      value:assigned
+    },
+
+    {
+      name:"Completed",
+      value:completed
     }
 
-  } catch (err) {
+  ];
 
-    console.error("Contractors API Error:", err);
+  const monthlyTrend=[
 
-  }
+    {month:"Jan",jobs:12},
 
-  // ===========================
-  // ESTIMATES
-  // ===========================
+    {month:"Feb",jobs:18},
 
-  try {
+    {month:"Mar",jobs:21},
 
-    const response = await fetch(
-      `${API_URL}/api/estimates`,
-      {
-        headers: {
-          Authorization: `Bearer ${token}`
-        }
-      }
-    );
+    {month:"Apr",jobs:27},
 
-    const data = await response.json();
+    {month:"May",jobs:34},
 
-    if (data.success) {
-      setEstimates(data.estimates);
-    }
+    {month:"Jun",jobs:41}
 
-  } catch (err) {
+  ];
 
-    console.error("Estimates API Error:", err);
+  const COLORS=[
 
-  }
+    "#2563EB",
+    "#10B981",
+    "#F59E0B",
+    "#EF4444"
 
-}
-  const pending = estimates.filter(
-    estimate => estimate.status === "Pending"
-  ).length;
-
-  const approved = estimates.filter(
-    estimate => estimate.status === "Approved"
-  ).length;
-
-  const assigned = estimates.filter(
-    estimate => estimate.status === "Assigned"
-  ).length;
-
-  const completed = estimates.filter(
-    estimate => estimate.status === "Completed"
-  ).length;
-
-  const statusData = [
-
-  { name: "Pending", value: pending },
-
-  { name: "Approved", value: approved },
-
-  { name: "Assigned", value: assigned },
-
-  { name: "Completed", value: completed }
-
-];
-
-const projectData = [
-
-  {
-    name: "Roofing",
-    value: estimates.filter(
-      e => e.project_type === "Roof Replacement"
-    ).length
-  },
-
-  {
-    name: "Kitchen",
-    value: estimates.filter(
-      e => e.project_type === "Kitchen Remodel"
-    ).length
-  },
-
-  {
-    name: "Bathroom",
-    value: estimates.filter(
-      e => e.project_type === "Bathroom Renovation"
-    ).length
-  },
-
-  {
-    name: "Electrical",
-    value: estimates.filter(
-      e => e.project_type === "Electrical Upgrade"
-    ).length
-  }
-
-];
-
-const COLORS = [
-  "#2563EB",
-  "#10B981",
-  "#F59E0B",
-  "#EF4444"
-];
+  ];
 
   return (
 
     <AdminLayout>
 
-      <div className="page-header">
-
-        <div>
-
-          <h1>Analytics Dashboard</h1>
-
-          <p>
-            Business performance and activity overview.
-          </p>
-
-        </div>
-
-      </div>
-
-      <div className="dashboard-cards">
-
-        <div className="dashboard-card">
-
-          <h2>Total Users</h2>
-
-          <h1>{users.length}</h1>
-
-        </div>
-
-        <div className="dashboard-card">
-
-          <h2>Contractors</h2>
-
-          <h1>{contractors.length}</h1>
-
-        </div>
-
-        <div className="dashboard-card">
-
-          <h2>Total Estimates</h2>
-
-          <h1>{estimates.length}</h1>
-
-        </div>
-
-        <div className="dashboard-card">
-
-          <h2>Completed Jobs</h2>
-
-          <h1>{completed}</h1>
-
-        </div>
-
-      </div>
-
-      <div className="security-panel">
-
-        <h2>Estimate Status</h2>
-
-        <div className="security-grid">
-
-          <div className="security-box">
-
-            <span>Pending</span>
-
-            <h2>{pending}</h2>
-
-          </div>
-
-          <div className="security-box">
-
-            <span>Approved</span>
-
-            <h2>{approved}</h2>
-
-          </div>
-
-          <div className="security-box">
-
-            <span>Assigned</span>
-
-            <h2>{assigned}</h2>
-
-          </div>
-
-          <div className="security-box">
-
-            <span>Completed</span>
-
-            <h2>{completed}</h2>
-
-          </div>
-
-        </div>
-
-      </div>
-
-      <div className="security-panel">
-
-        <h2>Project Types</h2>
-
-        <div className="security-grid">
-
-          <div className="security-box">
-
-            <span>Roof Replacement</span>
-
-            <h2>
-
-              {
-
-                estimates.filter(
-
-                  estimate =>
-
-                    estimate.project_type === "Roof Replacement"
-
-                ).length
-
-              }
-
-            </h2>
-
-          </div>
-
-          <div className="security-box">
-
-            <span>Kitchen Remodel</span>
-
-            <h2>
-
-              {
-
-                estimates.filter(
-
-                  estimate =>
-
-                    estimate.project_type === "Kitchen Remodel"
-
-                ).length
-
-              }
-
-            </h2>
-
-          </div>
-
-          <div className="security-box">
-
-            <span>Bathroom Renovation</span>
-
-            <h2>
-
-              {
-
-                estimates.filter(
-
-                  estimate =>
-
-                    estimate.project_type === "Bathroom Renovation"
-
-                ).length
-
-              }
-
-            </h2>
-
-          </div>
-
-          <div className="security-box">
-
-            <span>Electrical Upgrade</span>
-
-            <h2>
-
-              {
-
-                estimates.filter(
-
-                  estimate =>
-
-                    estimate.project_type === "Electrical Upgrade"
-
-                ).length
-
-              }
-
-            </h2>
-
-          </div>
-
-        </div>
-
-      </div>
-<div className="security-panel">
-
-  <h2>Estimate Status Overview</h2>
-
-  <div style={{ width: "100%", height: 320 }}>
-
-    <ResponsiveContainer>
-
-      <BarChart data={statusData}>
-
-        <XAxis dataKey="name" />
-
-        <YAxis />
-
-        <Tooltip />
-
-        <Bar
-          dataKey="value"
-          fill="#2563EB"
-          radius={[8, 8, 0, 0]}
-        />
-
-      </BarChart>
-
-    </ResponsiveContainer>
-
-  </div>
-
-</div>
-
-<div
-  className="security-panel"
-  style={{ marginTop: "30px" }}
+        <div className="page-header">
+
+          <div>
+
+           <h1
+  style={{
+    color: "red",
+    fontSize: "60px",
+    background: "yellow",
+    padding: "20px"
+  }}
 >
+  THIS IS THE NEW ANALYTICS PAGE
+</h1>
 
-  <h2>Project Types</h2>
+            <p>
+              Real-time business intelligence and platform performance.
+            </p>
 
-  <div style={{ width: "100%", height: 350 }}>
+          </div>
 
-    <ResponsiveContainer>
+          <button
+            className="primary-btn"
+            onClick={loadAnalytics}
+          >
 
-      <PieChart>
+            <RefreshCw size={18} />
 
-        <Pie
+            Refresh
 
-          data={projectData}
+          </button>
 
-          dataKey="value"
+        </div>
 
-          nameKey="name"
+        {/* ===========================
+            KPI CARDS
+        ============================ */}
 
-          outerRadius={120}
+        <div className="dashboard-cards">
 
-          label
+          <div className="dashboard-card">
 
-        >
+            <div className="card-icon users">
 
-          {
+              <Users size={28} />
 
-            projectData.map((entry, index) => (
+            </div>
 
-              <Cell
+            <h2>Total Users</h2>
 
-                key={index}
+            <h1>{users.length}</h1>
 
-                fill={COLORS[index % COLORS.length]}
+            <p>Registered customers</p>
 
-              />
+          </div>
 
-            ))
+          <div className="dashboard-card">
 
-          }
+            <div className="card-icon contractors">
 
-        </Pie>
+              <Hammer size={28} />
 
-        <Tooltip />
+            </div>
 
-        <Legend />
+            <h2>Contractors</h2>
 
-      </PieChart>
+            <h1>{contractors.length}</h1>
 
-    </ResponsiveContainer>
+            <p>Verified professionals</p>
 
-  </div>
+          </div>
 
-</div>
-      <div className="activity-panel">
+          <div className="dashboard-card">
 
-        <h2>Recent Estimate Requests</h2>
+            <div className="card-icon estimates">
 
-        <table>
+              <FileText size={28} />
 
-          <thead>
+            </div>
 
-            <tr>
+            <h2>Estimates</h2>
 
-              <th>Project</th>
+            <h1>{estimates.length}</h1>
 
-              <th>Status</th>
+            <p>Total requests submitted</p>
 
-              <th>Budget</th>
+          </div>
 
-              <th>Address</th>
+          <div className="dashboard-card">
 
-            </tr>
+            <div className="card-icon reviews">
 
-          </thead>
+              <CheckCircle2 size={28} />
 
-          <tbody>
+            </div>
 
-            {
+            <h2>Completion Rate</h2>
 
-              estimates.slice(0, 5).map((estimate) => (
+            <h1>{completionRate}%</h1>
 
-                <tr key={estimate.id}>
+            <p>Projects completed</p>
 
-                  <td>{estimate.project_type}</td>
+          </div>
 
-                  <td>{estimate.status}</td>
+        </div>
 
-                  <td>${estimate.budget}</td>
+        {/* ===========================
+            BUSINESS METRICS
+        ============================ */}
 
-                  <td>{estimate.address}</td>
+        <div className="dashboard-cards">
 
-                </tr>
+          <div className="dashboard-card">
 
-              ))
+            <div className="card-icon users">
 
-            }
+              <DollarSign size={28} />
 
-          </tbody>
+            </div>
 
-        </table>
+            <h2>Estimated Revenue</h2>
 
-      </div>
+            <h1>
+
+              $
+
+              {totalRevenue.toLocaleString()}
+
+            </h1>
+
+            <p>Completed projects</p>
+
+          </div>
+
+          <div className="dashboard-card">
+
+            <div className="card-icon contractors">
+
+              <TrendingUp size={28} />
+
+            </div>
+
+            <h2>Growth Trend</h2>
+
+            <h1>+18%</h1>
+
+            <p>Compared to last month</p>
+
+          </div>
+
+          <div className="dashboard-card">
+
+            <div className="card-icon estimates">
+
+              <Activity size={28} />
+
+            </div>
+
+            <h2>Active Projects</h2>
+
+            <h1>{assigned}</h1>
+
+            <p>Currently assigned</p>
+
+          </div>
+
+          <div className="dashboard-card">
+
+            <div className="card-icon reviews">
+
+              <CheckCircle2 size={28} />
+
+            </div>
+
+            <h2>Completed Jobs</h2>
+
+            <h1>{completed}</h1>
+
+            <p>Successfully finished</p>
+
+          </div>
+
+        </div>
+
+        {/* ===========================
+            CHARTS
+        ============================ */}
+
+        <div className="analytics-grid">
+
+          <div className="analytics-card">
+
+            <div className="panel-header">
+
+              <h2>Monthly Growth</h2>
+
+              <span>Last 6 months</span>
+
+            </div>
+
+            <div style={{width:"100%",height:320}}>
+
+              <ResponsiveContainer>
+
+                <AreaChart data={monthlyTrend}>
+
+                  <XAxis dataKey="month"/>
+
+                  <YAxis/>
+
+                  <Tooltip/>
+
+                  <Area
+
+                    type="monotone"
+
+                    dataKey="jobs"
+
+                    stroke="#2563EB"
+
+                    fill="#3B82F6"
+
+                  />
+
+                </AreaChart>
+
+              </ResponsiveContainer>
+
+            </div>
+
+          </div>
+
+          <div className="analytics-card">
+
+            <div className="panel-header">
+
+              <h2>Estimate Status</h2>
+
+              <span>Current Distribution</span>
+
+            </div>
+
+            <div style={{width:"100%",height:320}}>
+
+              <ResponsiveContainer>
+
+                <BarChart data={estimateStatus}>
+
+                  <XAxis dataKey="name"/>
+
+                  <YAxis/>
+
+                  <Tooltip/>
+
+                  <Bar
+
+                    dataKey="value"
+
+                    fill="#2563EB"
+
+                    radius={[8,8,0,0]}
+
+                  />
+
+                </BarChart>
+
+              </ResponsiveContainer>
+
+            </div>
+
+          </div>
+
+        </div>
+              {/* ===========================
+            PROJECT DISTRIBUTION
+        ============================ */}
+
+        <div className="analytics-grid">
+
+          <div className="analytics-card">
+
+            <div className="panel-header">
+
+              <h2>Project Distribution</h2>
+
+              <span>Current Project Types</span>
+
+            </div>
+
+            <div
+              style={{
+                width: "100%",
+                height: 350
+              }}
+            >
+
+              <ResponsiveContainer>
+
+                <PieChart>
+
+                  <Pie
+                    data={estimateStatus}
+                    dataKey="value"
+                    nameKey="name"
+                    outerRadius={120}
+                    label
+                  >
+
+                    {
+
+                      estimateStatus.map((entry,index)=>(
+
+                        <Cell
+                          key={index}
+                          fill={COLORS[index]}
+                        />
+
+                      ))
+
+                    }
+
+                  </Pie>
+
+                  <Tooltip />
+
+                  <Legend />
+
+                </PieChart>
+
+              </ResponsiveContainer>
+
+            </div>
+
+          </div>
+
+          <div className="analytics-card">
+
+            <div className="panel-header">
+
+              <h2>Executive Summary</h2>
+
+              <span>Platform Overview</span>
+
+            </div>
+
+            <div className="system-health-grid">
+
+              <div className="health-card">
+
+                <h3>Total Customers</h3>
+
+                <h1>{users.length}</h1>
+
+              </div>
+
+              <div className="health-card">
+
+                <h3>Contractor Network</h3>
+
+                <h1>{contractors.length}</h1>
+
+              </div>
+
+              <div className="health-card">
+
+                <h3>Project Requests</h3>
+
+                <h1>{estimates.length}</h1>
+
+              </div>
+
+              <div className="health-card">
+
+                <h3>Completion Rate</h3>
+
+                <h1>{completionRate}%</h1>
+
+              </div>
+
+            </div>
+
+          </div>
+
+        </div>
+
+        {/* ===========================
+            RECENT ESTIMATES
+        ============================ */}
+
+        <div className="activity-panel">
+
+          <div className="panel-header">
+
+            <h2>Recent Estimate Requests</h2>
+
+            <span>
+
+              {estimates.length} Total Requests
+
+            </span>
+
+          </div>
+
+          <table>
+
+            <thead>
+
+              <tr>
+
+                <th>Project</th>
+
+                <th>Status</th>
+
+                <th>Budget</th>
+
+                <th>Address</th>
+
+              </tr>
+
+            </thead>
+
+            <tbody>
+
+              {
+
+                estimates
+                  .slice(0,8)
+                  .map((estimate)=>(
+
+                    <tr key={estimate.id}>
+
+                      <td>
+
+                        {estimate.project_type}
+
+                      </td>
+
+                      <td>
+
+                        <span
+                          className={`status-badge ${estimate.status.toLowerCase()}`}
+                        >
+
+                          {estimate.status}
+
+                        </span>
+
+                      </td>
+
+                      <td>
+
+                        ${estimate.budget}
+
+                      </td>
+
+                      <td>
+
+                        {estimate.address}
+
+                      </td>
+
+                    </tr>
+
+                  ))
+
+              }
+
+                        </tbody>
+
+          </table>
+
+        </div>
 
     </AdminLayout>
 

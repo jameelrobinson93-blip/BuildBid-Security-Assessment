@@ -23,19 +23,64 @@ export default function AdminRoutes() {
       <Routes>
 
         <Route
-          path="/"
-          element={<Navigate to="/dashboard" replace />}
-        />
+  index
+  element={<Navigate to="dashboard" replace />}
+/>
 
-        <Route
-          path="/dashboard"
-          element={<Dashboard />}
-        />
+<Route
+  path="dashboard"
+  element={<Dashboard />}
+/>
 
-        <Route
-          path="/users"
-          element={<Users />}
-        />
+<Route
+  path="users"
+  element={<Users />}
+/>
+
+<Route
+  path="contractors"
+  element={<Contractors />}
+/>
+
+<Route
+  path="add-contractor"
+  element={<AddContractor />}
+/>
+
+<Route
+  path="contractors/:id"
+  element={<ContractorProfile />}
+/>
+
+<Route
+  path="estimates"
+  element={<Estimates />}
+/>
+
+<Route
+  path="estimates/:id"
+  element={<EstimateProfile />}
+/>
+
+<Route
+  path="reviews"
+  element={<Reviews />}
+/>
+
+<Route
+  path="security"
+  element={<Security />}
+/>
+
+<Route
+  path="analytics"
+  element={<Analytics />}
+/>
+
+<Route
+  path="settings"
+  element={<Settings />}
+/>
 
         <Route
           path="/contractors"

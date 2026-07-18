@@ -1,70 +1,133 @@
 import { NavLink } from "react-router-dom";
 
+import {
+    LayoutDashboard,
+    Users,
+    Hammer,
+    FileText,
+    Star,
+    Shield,
+    BarChart3,
+    Settings,
+    LogOut,
+    Building2
+} from "lucide-react";
+
 export default function AdminSidebar() {
 
-  function logout() {
+    function logout() {
 
-    localStorage.removeItem("token");
-    localStorage.removeItem("user");
-    localStorage.removeItem("adminLoggedIn");
+        localStorage.removeItem("token");
+        localStorage.removeItem("user");
+        localStorage.removeItem("adminLoggedIn");
 
-    window.location.href="/admin/login";
+        window.location.href="/admin/login";
 
-  }
+    }
 
-  return (
+    return (
 
-    <aside className="sidebar">
+        <aside className="sidebar">
 
-      <h2>BuildBid</h2>
+            <div className="sidebar-logo">
 
-      <nav>
+                <div className="logo-icon">
 
-        <NavLink to="/admin/dashboard">
-          📊 Dashboard
-        </NavLink>
+                    <Building2 size={28} />
 
-        <NavLink to="/admin/users">
-          👤 Users
-        </NavLink>
+                </div>
 
-        <NavLink to="/admin/contractors">
-          👷 Contractors
-        </NavLink>
+                <div>
 
-        <NavLink to="/admin/estimates">
-          📄 Estimates
-        </NavLink>
+                    <h2>BuildBid</h2>
 
-        <NavLink to="/admin/reviews">
-          ⭐ Reviews
-        </NavLink>
+                    <span>Admin Dashboard</span>
 
-        <NavLink to="/admin/security">
-          🔒 Security
-        </NavLink>
+                </div>
 
-        <NavLink to="/admin/analytics">
-          📈 Analytics
-        </NavLink>
+            </div>
 
-        <NavLink to="/admin/settings">
-          ⚙ Settings
-        </NavLink>
+            <nav>
 
-      </nav>
+                <NavLink to="/admin/dashboard">
 
-      <button
-        className="logout-btn"
-        onClick={logout}
-      >
+                    <LayoutDashboard size={20} />
 
-        Logout
+                    <span>Dashboard</span>
 
-      </button>
+                </NavLink>
 
-    </aside>
+                <NavLink to="/admin/users">
 
-  );
+                    <Users size={20} />
+
+                    <span>Users</span>
+
+                </NavLink>
+
+                <NavLink to="/admin/contractors">
+
+                    <Hammer size={20} />
+
+                    <span>Contractors</span>
+
+                </NavLink>
+
+                <NavLink to="/admin/estimates">
+
+                    <FileText size={20} />
+
+                    <span>Estimates</span>
+
+                </NavLink>
+
+                <NavLink to="/admin/reviews">
+
+                    <Star size={20} />
+
+                    <span>Reviews</span>
+
+                </NavLink>
+
+                <NavLink to="/admin/security">
+
+                    <Shield size={20} />
+
+                    <span>Security</span>
+
+                </NavLink>
+
+                <NavLink to="/admin/analytics">
+
+                    <BarChart3 size={20} />
+
+                    <span>Analytics</span>
+
+                </NavLink>
+
+                <NavLink to="/admin/settings">
+
+                    <Settings size={20} />
+
+                    <span>Settings</span>
+
+                </NavLink>
+
+            </nav>
+
+            <button
+                className="logout-btn"
+                onClick={logout}
+            >
+
+                <LogOut size={18} />
+
+                Logout
+
+            </button>
+
+        </aside>
+
+    );
 
 }

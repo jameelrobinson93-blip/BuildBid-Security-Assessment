@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import API_URL from "../../config";
 import AdminLayout from "../AdminLayout";
+
 import {
   ResponsiveContainer,
   BarChart,
@@ -13,6 +14,19 @@ import {
   Tooltip,
   Legend
 } from "recharts";
+
+import {
+  ShieldCheck,
+  Shield,
+  AlertTriangle,
+  Database,
+  Activity,
+  RefreshCw,
+  Lock,
+  Bug,
+  Globe,
+  Server
+} from "lucide-react";
 
 export default function Security() {
 
@@ -35,13 +49,9 @@ export default function Security() {
         `${API_URL}/api/security/logs`,
 
         {
-
           headers: {
-
             Authorization: `Bearer ${token}`
-
           }
-
         }
 
       );
@@ -63,49 +73,78 @@ export default function Security() {
   }
 
   const failedLogins = logs.filter(
+
     log => log.status === "Failed Login"
+
   ).length;
 
   const successfulLogins = logs.filter(
+
     log => log.status === "Successful Login"
+
   ).length;
 
   const suspiciousActivity = logs.filter(
+
     log =>
-      log.status === "Blocked XSS" ||
+
+      log.status === "Blocked XSS"
+
+      ||
+
       log.status === "Suspicious Activity"
+
   ).length;
-const securityData = [
 
-  {
-    name: "Successful",
-    value: successfulLogins
-  },
+  const securityData = [
 
-  {
-    name: "Failed",
-    value: failedLogins
-  },
+    {
+      name: "Successful",
+      value: successfulLogins
+    },
 
-  {
-    name: "Suspicious",
-    value: suspiciousActivity
-  }
+    {
+      name: "Failed",
+      value: failedLogins
+    },
 
-];
+    {
+      name: "Suspicious",
+      value: suspiciousActivity
+    }
 
-const COLORS = [
+  ];
 
-  "#10B981",
+  const COLORS = [
 
-  "#EF4444",
+    "#10B981",
 
-  "#F59E0B"
+    "#EF4444",
 
-];
+    "#F59E0B"
+
+  ];
+
+  const securityScore =
+
+    logs.length === 0
+
+      ? 100
+
+      : Math.round(
+
+          (successfulLogins / logs.length) * 100
+
+        );
   return (
 
-    <AdminLayout>
+  <AdminLayout>
+
+    <div className="admin-content">
+
+      {/* =========================
+          PAGE HEADER
+      ========================= */}
 
       <div className="page-header">
 
@@ -115,103 +154,196 @@ const COLORS = [
 
           <p>
 
-            Monitor authentication activity and application security.
+            Monitor authentication, application security, and real-time threat activity.
 
           </p>
 
         </div>
 
+        <button
+          className="primary-btn"
+          onClick={loadLogs}
+        >
+
+          <RefreshCw size={18} />
+
+          Refresh
+
+        </button>
+
       </div>
+
+      {/* =========================
+          KPI CARDS
+      ========================= */}
 
       <div className="dashboard-cards">
 
         <div className="dashboard-card">
 
-          <h2>Failed Logins</h2>
+          <div className="card-icon users">
 
-          <h1>{failedLogins}</h1>
+            <ShieldCheck size={30} />
 
-        </div>
+          </div>
 
-        <div className="dashboard-card">
-
-          <h2>Successful Logins</h2>
+          <span>Successful Logins</span>
 
           <h1>{successfulLogins}</h1>
 
+          <p>Verified Sessions</p>
+
         </div>
 
         <div className="dashboard-card">
 
-          <h2>Suspicious Activity</h2>
+          <div className="card-icon estimates">
+
+            <AlertTriangle size={30} />
+
+          </div>
+
+          <span>Failed Logins</span>
+
+          <h1>{failedLogins}</h1>
+
+          <p>Authentication Failures</p>
+
+        </div>
+
+        <div className="dashboard-card">
+
+          <div className="card-icon contractors">
+
+            <Bug size={30} />
+
+          </div>
+
+          <span>Suspicious Activity</span>
 
           <h1>{suspiciousActivity}</h1>
 
+          <p>Threat Events</p>
+
         </div>
 
         <div className="dashboard-card">
 
-          <h2>Total Events</h2>
+          <div className="card-icon reviews">
+
+            <Database size={30} />
+
+          </div>
+
+          <span>Total Events</span>
 
           <h1>{logs.length}</h1>
 
+          <p>Recorded Logs</p>
+
         </div>
 
         <div className="dashboard-card">
 
-          <h2>Security Score</h2>
+          <div className="card-icon analytics">
 
-          <h1>96%</h1>
+            <Shield size={30} />
+
+          </div>
+
+          <span>Security Score</span>
+
+          <h1>{securityScore}%</h1>
+
+          <p>Overall Protection</p>
 
         </div>
 
       </div>
 
-      <div className="security-panel">
+      {/* =========================
+          SECURITY HEALTH
+      ========================= */}
 
-        <h2>Security Health</h2>
+      <div className="system-health-grid">
 
-        <div className="security-grid">
+        <div className="health-card">
 
-          <div className="security-box">
+          <ShieldCheck size={34} />
 
-            <span>JWT Authentication</span>
+          <h3>JWT Authentication</h3>
 
-            <h2>✅ Active</h2>
+          <p>Enabled</p>
 
-          </div>
+        </div>
 
-          <div className="security-box">
+        <div className="health-card">
 
-            <span>Password Hashing</span>
+          <Lock size={34} />
 
-            <h2>✅ bcrypt</h2>
+          <h3>Password Hashing</h3>
 
-          </div>
+          <p>bcrypt Protected</p>
 
-          <div className="security-box">
+        </div>
 
-            <span>Helmet Security</span>
+        <div className="health-card">
 
-            <h2>✅ Enabled</h2>
+          <Shield size={34} />
 
-          </div>
+          <h3>Helmet Security</h3>
 
-          <div className="security-box">
+          <p>Security Headers Active</p>
 
-            <span>Security Logging</span>
+        </div>
 
-            <h2>✅ Online</h2>
+        <div className="health-card">
 
-          </div>
+          <Activity size={34} />
+
+          <h3>Security Logging</h3>
+
+          <p>Monitoring Enabled</p>
+
+        </div>
+
+        <div className="health-card">
+
+          <Server size={34} />
+
+          <h3>Backend API</h3>
+
+          <p>Operational</p>
+
+        </div>
+
+        <div className="health-card">
+
+          <Globe size={34} />
+
+          <h3>Web Application</h3>
+
+          <p>Online</p>
 
         </div>
 
       </div>
+
+      {/* =========================
+          RECENT SECURITY EVENTS
+      ========================= */}
 
       <div className="activity-panel">
 
-        <h2>Recent Security Events</h2>
+        <div className="panel-header">
+
+          <h2>
+
+            Recent Security Events
+
+          </h2>
+
+        </div>
 
         <table>
 
@@ -235,15 +367,13 @@ const COLORS = [
 
             {
 
-              logs.slice(0, 10).map((log) => (
+              logs.slice(0,10).map((log)=>(
 
                 <tr key={log.id}>
 
                   <td>
 
-                    {new Date(
-                      log.event_time
-                    ).toLocaleString()}
+                    {new Date(log.event_time).toLocaleString()}
 
                   </td>
 
@@ -257,11 +387,15 @@ const COLORS = [
 
                     <span
                       className={
-                        log.status === "Failed Login"
-                          ? "status-badge suspended"
-                          : log.status === "Successful Login"
-                          ? "status-badge active"
-                          : "status-badge pending"
+                        log.status==="Successful Login"
+
+                        ? "status-badge active"
+
+                        : log.status==="Failed Login"
+
+                        ? "status-badge suspended"
+
+                        : "status-badge pending"
                       }
                     >
 
@@ -292,183 +426,424 @@ const COLORS = [
         </table>
 
       </div>
-<div className="security-panel">
 
-  <h2>Security Activity</h2>
+      {/* =========================
+          SECURITY ANALYTICS
+      ========================= */}
 
-  <div style={{ width: "100%", height: 320 }}>
+      <div className="analytics-grid">
 
-    <ResponsiveContainer>
+        {/* Activity Chart */}
 
-      <BarChart data={securityData}>
+        <div className="analytics-card">
 
-        <XAxis dataKey="name" />
+          <div className="panel-header">
 
-        <YAxis />
+            <h2>Security Activity</h2>
 
-        <Tooltip />
+            <span>Last Recorded Events</span>
 
-        <Bar
+          </div>
 
-          dataKey="value"
+          <div
+            style={{
+              width: "100%",
+              height: 320
+            }}
+          >
 
-          fill="#2563EB"
+            <ResponsiveContainer>
 
-          radius={[8,8,0,0]}
+              <BarChart data={securityData}>
 
-        />
+                <XAxis dataKey="name" />
 
-      </BarChart>
+                <YAxis />
 
-    </ResponsiveContainer>
+                <Tooltip />
 
-  </div>
+                <Bar
+                  dataKey="value"
+                  fill="#2563EB"
+                  radius={[8,8,0,0]}
+                />
 
-</div>
+              </BarChart>
 
-<div
-  className="security-panel"
-  style={{ marginTop: "30px" }}
->
+            </ResponsiveContainer>
 
-  <h2>Security Event Distribution</h2>
+          </div>
 
-  <div style={{ width: "100%", height: 350 }}>
+        </div>
 
-    <ResponsiveContainer>
+        {/* Distribution Chart */}
 
-      <PieChart>
+        <div className="analytics-card">
 
-        <Pie
+          <div className="panel-header">
 
-          data={securityData}
+            <h2>Security Event Distribution</h2>
 
-          dataKey="value"
+            <span>Current Breakdown</span>
 
-          nameKey="name"
+          </div>
 
-          outerRadius={120}
+          <div
+            style={{
+              width: "100%",
+              height: 320
+            }}
+          >
 
-          label
+            <ResponsiveContainer>
 
+              <PieChart>
+
+                <Pie
+                  data={securityData}
+                  dataKey="value"
+                  nameKey="name"
+                  outerRadius={110}
+                  label
+                >
+
+                  {
+
+                    securityData.map((entry,index)=>(
+
+                      <Cell
+                        key={index}
+                        fill={COLORS[index]}
+                      />
+
+                    ))
+
+                  }
+
+                </Pie>
+
+                <Tooltip />
+
+                <Legend />
+
+              </PieChart>
+
+            </ResponsiveContainer>
+
+          </div>
+
+        </div>
+
+      </div>
+
+      {/* =========================
+          SECURITY METRICS
+      ========================= */}
+
+      <div className="dashboard-cards">
+
+        <div className="dashboard-card">
+
+          <span>Login Success Rate</span>
+
+          <h1>
+
+            {
+
+              logs.length === 0
+
+                ? "100%"
+
+                : `${Math.round((successfulLogins / logs.length) * 100)}%`
+
+            }
+
+          </h1>
+
+          <p>Successful Authentication</p>
+
+        </div>
+
+        <div className="dashboard-card">
+
+          <span>Failure Rate</span>
+
+          <h1>
+
+            {
+
+              logs.length === 0
+
+                ? "0%"
+
+                : `${Math.round((failedLogins / logs.length) * 100)}%`
+
+            }
+
+          </h1>
+
+          <p>Failed Login Attempts</p>
+
+        </div>
+
+        <div className="dashboard-card">
+
+          <span>Threat Detection</span>
+
+          <h1>
+
+            {
+
+              logs.length === 0
+
+                ? "0%"
+
+                : `${Math.round((suspiciousActivity / logs.length) * 100)}%`
+
+            }
+
+          </h1>
+
+          <p>Detected Threat Events</p>
+
+        </div>
+
+      </div>
+
+        {/* =========================
+          THREAT ASSESSMENT
+      ========================= */}
+
+      <div className="system-health-grid">
+
+        <div className="health-card">
+
+          <ShieldCheck size={34} />
+
+          <h3>Threat Level</h3>
+
+          <p style={{ color:"#10B981", fontWeight:700 }}>
+            LOW
+          </p>
+
+        </div>
+
+        <div className="health-card">
+
+          <Shield size={34} />
+
+          <h3>Firewall</h3>
+
+          <p>Protected</p>
+
+        </div>
+
+        <div className="health-card">
+
+          <Lock size={34} />
+
+          <h3>Authentication</h3>
+
+          <p>Secure</p>
+
+        </div>
+
+        <div className="health-card">
+
+          <Activity size={34} />
+
+          <h3>Monitoring</h3>
+
+          <p>Live</p>
+
+        </div>
+
+      </div>
+
+      {/* =========================
+          SECURITY COMPLIANCE
+      ========================= */}
+
+      <div className="activity-panel">
+
+        <div className="panel-header">
+
+          <h2>Security Controls</h2>
+
+          <span>Application Protection Status</span>
+
+        </div>
+
+        <div className="system-health-grid">
+
+          <div className="health-card">
+
+            <ShieldCheck size={32}/>
+
+            <h3>JWT Authentication</h3>
+
+            <p>Enabled</p>
+
+          </div>
+
+          <div className="health-card">
+
+            <Lock size={32}/>
+
+            <h3>Password Hashing</h3>
+
+            <p>bcrypt</p>
+
+          </div>
+
+          <div className="health-card">
+
+            <Shield size={32}/>
+
+            <h3>Helmet Headers</h3>
+
+            <p>Enabled</p>
+
+          </div>
+
+          <div className="health-card">
+
+            <Database size={32}/>
+
+            <h3>Security Logs</h3>
+
+            <p>Recording</p>
+
+          </div>
+
+          <div className="health-card">
+
+            <Bug size={32}/>
+
+            <h3>XSS Protection</h3>
+
+            <p>Protected</p>
+
+          </div>
+
+          <div className="health-card">
+
+            <AlertTriangle size={32}/>
+
+            <h3>Brute Force</h3>
+
+            <p>Blocked</p>
+
+          </div>
+
+          <div className="health-card">
+
+            <Server size={32}/>
+
+            <h3>RBAC</h3>
+
+            <p>Enabled</p>
+
+          </div>
+
+          <div className="health-card">
+
+            <Globe size={32}/>
+
+            <h3>API Security</h3>
+
+            <p>Online</p>
+
+          </div>
+
+        </div>
+
+      </div>
+
+      {/* =========================
+          EXECUTIVE SUMMARY
+      ========================= */}
+
+      <div className="activity-panel">
+
+        <div className="panel-header">
+
+          <h2>Executive Security Summary</h2>
+
+        </div>
+
+        <div
+          style={{
+            display:"grid",
+            gridTemplateColumns:"repeat(auto-fit,minmax(300px,1fr))",
+            gap:"20px",
+            marginTop:"25px"
+          }}
         >
 
-          {
+          <div className="dashboard-card">
 
-            securityData.map((entry,index)=>(
+            <h3>Security Status</h3>
 
-              <Cell
+            <p>
 
-                key={index}
+              The BuildBid platform is operating with
+              enterprise security controls including JWT
+              authentication, encrypted password storage,
+              security headers, RBAC authorization, and
+              continuous event logging.
 
-                fill={COLORS[index]}
+            </p>
 
-              />
+          </div>
 
-            ))
+          <div className="dashboard-card">
 
-          }
+            <h3>Threat Assessment</h3>
 
-        </Pie>
+            <p>
 
-        <Tooltip />
+              Current monitoring indicates a low threat
+              level with successful detection of failed
+              logins and suspicious activity. No critical
+              incidents are present.
 
-        <Legend />
+            </p>
 
-      </PieChart>
+          </div>
 
-    </ResponsiveContainer>
+          <div className="dashboard-card">
 
-  </div>
+            <h3>Overall Security Score</h3>
 
-</div>
-<div className="security-panel">
+            <h1
+              style={{
+                color:"#10B981",
+                marginTop:"20px"
+              }}
+            >
 
-  <h2>Threat Assessment</h2>
+              {securityScore}%
 
-  <div className="security-grid">
+            </h1>
 
-    <div className="security-box">
+            <p>
 
-      <span>Threat Level</span>
+              Security posture remains healthy and
+              monitoring is active.
 
-      <h2 style={{ color: "#10B981" }}>
+            </p>
 
-        LOW
+          </div>
 
-      </h2>
+        </div>
 
-    </div>
-
-    <div className="security-box">
-
-      <span>Firewall</span>
-
-      <h2>
-
-        🟢 Protected
-
-      </h2>
-
-    </div>
-
-    <div className="security-box">
-
-      <span>Authentication</span>
-
-      <h2>
-
-        🟢 Secure
-
-      </h2>
+      </div>
 
     </div>
 
-    <div className="security-box">
+  </AdminLayout>
 
-      <span>Monitoring</span>
-
-      <h2>
-
-        🟢 Active
-
-      </h2>
-
-    </div>
-
-  </div>
-
-</div>
-<div className="security-panel">
-
-  <h2>Executive Security Summary</h2>
-
-  <ul
-    style={{
-      lineHeight: "2",
-      paddingLeft: "20px"
-    }}
-  >
-
-    <li>✅ JWT Authentication Enabled</li>
-
-    <li>✅ Passwords Secured with bcrypt</li>
-
-    <li>✅ Helmet Security Headers Enabled</li>
-
-    <li>✅ PostgreSQL Security Logging Active</li>
-
-    <li>✅ Role-Based Access Control (RBAC) Enabled</li>
-
-    <li>✅ Brute Force Protection Implemented</li>
-
-    <li>✅ Cross-Site Scripting (XSS) Protection Enabled</li>
-
-  </ul>
-
-</div>
-    </AdminLayout>
-
-  );
+);
 
 }
