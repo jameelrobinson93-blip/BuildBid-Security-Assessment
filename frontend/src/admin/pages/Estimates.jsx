@@ -176,7 +176,7 @@ export default function Estimates() {
 
       <div>
 
-        <h1>Estimate Management</h1>
+<h1>Estimate Management</h1>
 
         <p>Manage customer estimate requests.</p>
 
