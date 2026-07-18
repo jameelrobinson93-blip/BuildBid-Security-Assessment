@@ -9,11 +9,10 @@ export default function Estimates() {
 
   const [estimates, setEstimates] = useState([]);
   const [search, setSearch] = useState("");
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-
     loadEstimates();
-
   }, []);
 
   async function loadEstimates() {
@@ -23,19 +22,12 @@ export default function Estimates() {
     try {
 
       const response = await fetch(
-
         `${API_URL}/api/estimates`,
-
         {
-
           headers: {
-
             Authorization: `Bearer ${token}`
-
           }
-
         }
-
       );
 
       const data = await response.json();
@@ -44,11 +36,21 @@ export default function Estimates() {
 
         setEstimates(data.estimates);
 
+      } else {
+
+        alert(data.message);
+
       }
 
     } catch (err) {
 
       console.error(err);
+
+      alert("Unable to load estimates.");
+
+    } finally {
+
+      setLoading(false);
 
     }
 
@@ -56,86 +58,22 @@ export default function Estimates() {
 
   async function deleteEstimate(id) {
 
-    const confirmDelete = window.confirm(
-
-      "Delete this estimate?"
-
-    );
-
-    if (!confirmDelete) return;
+    if (!window.confirm("Delete this estimate?")) return;
 
     const token = localStorage.getItem("token");
 
     try {
 
       const response = await fetch(
-
         `${API_URL}/api/estimates/${id}`,
-
         {
-
           method: "DELETE",
-
           headers: {
-
             Authorization: `Bearer ${token}`
-
           }
-
         }
-
       );
-async function updateStatus(id, status) {
 
-  const token = localStorage.getItem("token");
-
-  try {
-
-    const response = await fetch(
-
-      `${API_URL}/api/estimates/${id}/status`,
-
-      {
-
-        method: "PUT",
-
-        headers: {
-
-          "Content-Type": "application/json",
-
-          Authorization: `Bearer ${token}`
-
-        },
-
-        body: JSON.stringify({
-
-          status
-
-        })
-
-      }
-
-    );
-
-    const data = await response.json();
-
-    if (data.success) {
-
-      loadEstimates();
-
-    } else {
-
-      alert(data.message);
-
-    }
-
-  } catch (err) {
-
-    console.error(err);
-
-  }
-
-}
       const data = await response.json();
 
       if (data.success) {
@@ -154,6 +92,50 @@ async function updateStatus(id, status) {
 
       console.error(err);
 
+      alert("Unable to delete estimate.");
+
+    }
+
+  }
+
+  async function updateStatus(id, status) {
+
+    const token = localStorage.getItem("token");
+
+    try {
+
+      const response = await fetch(
+        `${API_URL}/api/estimates/${id}/status`,
+        {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`
+          },
+          body: JSON.stringify({
+            status
+          })
+        }
+      );
+
+      const data = await response.json();
+
+      if (data.success) {
+
+        loadEstimates();
+
+      } else {
+
+        alert(data.message);
+
+      }
+
+    } catch (err) {
+
+      console.error(err);
+
+      alert("Unable to update estimate.");
+
     }
 
   }
@@ -164,118 +146,128 @@ async function updateStatus(id, status) {
 
   }
 
-  const filteredEstimates = estimates.filter(
+  const filteredEstimates = estimates.filter((estimate) => {
 
-    (estimate) => {
+    const project =
+      estimate.project_type?.toLowerCase() || "";
 
-      const project =
+    const address =
+      estimate.address?.toLowerCase() || "";
 
-        estimate.project_type?.toLowerCase() || "";
+    const contractor =
+      estimate.contractor_name?.toLowerCase() || "";
 
-      const address =
+    return (
 
-        estimate.address?.toLowerCase() || "";
+      project.includes(search.toLowerCase()) ||
 
+      address.includes(search.toLowerCase()) ||
+
+      contractor.includes(search.toLowerCase())
+
+    );
+
+  });
       return (
 
-        project.includes(search.toLowerCase()) ||
+  <AdminLayout>
 
-        address.includes(search.toLowerCase())
+    <div className="page-header">
 
-      );
+      <div>
 
-    }
+        <h1>Estimate Management</h1>
 
-  );
+        <p>Manage customer estimate requests.</p>
 
-  return (
+      </div>
 
-    <AdminLayout>
+      <button
+        className="primary-btn"
+        onClick={loadEstimates}
+      >
+        Refresh
+      </button>
 
-      <div className="page-header">
+    </div>
 
-  <div>
+    <div className="dashboard-cards">
 
-    <h1>Estimate Management</h1>
+      <div className="dashboard-card">
 
-    <p>Manage customer estimate requests.</p>
+        <h2>Total Estimates</h2>
 
-  </div>
+        <h1>{estimates.length}</h1>
 
-  <button
-    className="primary-btn"
-    onClick={loadEstimates}
-  >
-    Refresh
-  </button>
+      </div>
 
-</div>
+      <div className="dashboard-card">
 
-<div className="dashboard-cards">
+        <h2>Pending</h2>
 
-  <div className="dashboard-card">
+        <h1>
 
-    <h2>Total Estimates</h2>
+          {
+            estimates.filter(
+              estimate => estimate.status === "Pending"
+            ).length
+          }
 
-    <h1>{estimates.length}</h1>
+        </h1>
 
-  </div>
+      </div>
 
-  <div className="dashboard-card">
+      <div className="dashboard-card">
 
-    <h2>Pending</h2>
+        <h2>Assigned</h2>
 
-    <h1>
+        <h1>
 
-      {
-        estimates.filter(
-          e => e.status === "Pending"
-        ).length
-      }
+          {
+            estimates.filter(
+              estimate => estimate.status === "Assigned"
+            ).length
+          }
 
-    </h1>
+        </h1>
 
-  </div>
+      </div>
 
-  <div className="dashboard-card">
+      <div className="dashboard-card">
 
-    <h2>Assigned</h2>
+        <h2>Completed</h2>
 
-    <h1>
+        <h1>
 
-      {
-        estimates.filter(
-          e => e.contractor_id
-        ).length
-      }
+          {
+            estimates.filter(
+              estimate => estimate.status === "Completed"
+            ).length
+          }
 
-    </h1>
+        </h1>
 
-  </div>
+      </div>
 
-  <div className="dashboard-card">
+    </div>
 
-    <h2>Search Results</h2>
+    <input
 
-    <h1>{filteredEstimates.length}</h1>
+      className="search-input"
 
-  </div>
+      placeholder="Search estimates..."
 
-</div>
+      value={search}
 
-<input
+      onChange={(e) => setSearch(e.target.value)}
 
-  className="search-input"
+    />
 
-  type="text"
+    {loading ? (
 
-  placeholder="Search estimates..."
+      <h2>Loading Estimates...</h2>
 
-  value={search}
-
-  onChange={(e)=>setSearch(e.target.value)}
-
-/>
+    ) : (
 
       <table className="admin-table">
 
@@ -303,105 +295,169 @@ async function updateStatus(id, status) {
 
           {
 
-            filteredEstimates.map((estimate)=>(
+            filteredEstimates.length === 0 ? (
 
-              <tr key={estimate.id}>
+              <tr>
 
-                <td>
+                <td
+                  colSpan="6"
+                  style={{
+                    textAlign: "center",
+                    padding: "30px"
+                  }}
+                >
 
-                  {estimate.project_type}
-
-                </td>
-
-                <td>
-
-  <span
-    className={
-      estimate.status === "Completed"
-        ? "status-badge completed"
-        : estimate.status === "Approved"
-        ? "status-badge approved"
-        : "status-badge pending"
-    }
-  >
-    {estimate.status || "Pending"}
-  </span>
-
-</td>
-
-                <td>
-
-                  ${estimate.budget}
+                  No estimates found.
 
                 </td>
 
-                <td>
-
-                  {estimate.address}
-
-                </td>
-
-               <td>
-
-  {estimate.contractor_name || "Unassigned"}
-
-</td>
-
-                <td>
-
-  <div className="action-buttons">
-
-  <button
-    className="view-btn"
-    onClick={() =>
-      navigate(`/admin/estimates/${estimate.id}`)
-    }
-  >
-    View
-  </button>
-
-  <button
-    className="approve-btn"
-    onClick={() =>
-      updateStatus(estimate.id, "Approved")
-    }
-  >
-    Approve
-  </button>
-
-  <button
-    className="assign-btn"
-    onClick={() =>
-      assignContractor(estimate.id)
-    }
-  >
-    Assign
-  </button>
-
-  <button
-    className="complete-btn"
-    onClick={() =>
-      updateStatus(estimate.id, "Completed")
-    }
-  >
-    Complete
-  </button>
-
-  <button
-    className="delete-btn"
-    onClick={() =>
-      deleteEstimate(estimate.id)
-    }
-  >
-    Delete
-  </button>
-
-</div>
-
-</td>
               </tr>
 
-            ))
+            ) : (
+
+              filteredEstimates.map((estimate) => (
+
+                <tr key={estimate.id}>
+
+                  <td>
+
+                    {estimate.project_type}
+
+                  </td>
+
+                  <td>
+
+                    <span
+
+                      className={
+                        estimate.status === "Completed"
+                          ? "status-badge completed"
+                          : estimate.status === "Approved"
+                          ? "status-badge approved"
+                          : estimate.status === "Assigned"
+                          ? "status-badge assigned"
+                          : "status-badge pending"
+                      }
+
+                    >
+
+                      {estimate.status}
+
+                    </span>
+
+                  </td>
+
+                  <td>
+
+                    ${Number(estimate.budget).toFixed(2)}
+
+                  </td>
+
+                  <td>
+
+                    {estimate.address}
+
+                  </td>
+
+                  <td>
+
+                    {estimate.contractor_name || "Unassigned"}
+
+                  </td>
+
+                  <td>
+
+                    <div className="action-buttons">
+
+                      <button
+
+                        className="view-btn"
+
+                        onClick={() =>
+                          navigate(`/admin/estimates/${estimate.id}`)
+                        }
+
+                      >
+
+                        View
+
+                      </button>
+
+                      <button
+
+                        className="approve-btn"
+
+                        onClick={() =>
+                          updateStatus(
+                            estimate.id,
+                            "Approved"
+                          )
+                        }
+
+                      >
+
+                        Approve
+
+                      </button>
+
+                      <button
+
+                        className="assign-btn"
+
+                        onClick={() =>
+                          assignContractor(
+                            estimate.id
+                          )
+                        }
+
+                      >
+
+                        Assign
+
+                      </button>
+
+                      <button
+
+                        className="complete-btn"
+
+                        onClick={() =>
+                          updateStatus(
+                            estimate.id,
+                            "Completed"
+                          )
+                        }
+
+                      >
+
+                        Complete
+
+                      </button>
+
+                      <button
+
+                        className="delete-btn"
+
+                        onClick={() =>
+                          deleteEstimate(
+                            estimate.id
+                          )
+                        }
+
+                      >
+
+                        Delete
+
+                      </button>
+
+                    </div>
+
+                  </td>
+
+                </tr>
+
+              ))
+
+            )
 
           }
 
@@ -409,7 +465,9 @@ async function updateStatus(id, status) {
 
       </table>
 
-    </AdminLayout>
+    )}
+
+      </AdminLayout>
 
   );
 
