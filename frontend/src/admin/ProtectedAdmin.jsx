@@ -1,14 +1,19 @@
 import { Navigate } from "react-router-dom";
 
 export default function ProtectedAdmin({ children }) {
-
   const token = localStorage.getItem("token");
 
-  const user = JSON.parse(
-    localStorage.getItem("user")
-  );
+  let user = null;
 
-  if (!token || !user) {
+  try {
+    const storedUser = localStorage.getItem("user");
+
+    user = storedUser ? JSON.parse(storedUser) : null;
+  } catch (err) {
+    console.error("Invalid user data in localStorage.");
+
+    localStorage.removeItem("token");
+    localStorage.removeItem("user");
 
     return (
       <Navigate
@@ -16,20 +21,28 @@ export default function ProtectedAdmin({ children }) {
         replace
       />
     );
+  }
 
+  if (!token || !user) {
+    localStorage.removeItem("token");
+    localStorage.removeItem("user");
+
+    return (
+      <Navigate
+        to="/admin/login"
+        replace
+      />
+    );
   }
 
   if (user.role !== "admin") {
-
     return (
       <Navigate
         to="/login"
         replace
       />
     );
-
   }
 
   return children;
-
 }

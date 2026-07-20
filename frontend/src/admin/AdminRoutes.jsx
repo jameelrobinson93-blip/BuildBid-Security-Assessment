@@ -1,7 +1,5 @@
 import { Routes, Route, Navigate } from "react-router-dom";
 
-import ProtectedAdmin from "./ProtectedAdmin";
-
 import Dashboard from "./pages/Dashboard";
 import Users from "./pages/Users";
 import Contractors from "./pages/Contractors";
@@ -15,122 +13,77 @@ import Analytics from "./pages/Analytics";
 import Settings from "./pages/Settings";
 
 export default function AdminRoutes() {
-
   return (
+    <Routes>
+      <Route
+        index
+        element={<Navigate to="dashboard" replace />}
+      />
 
-    <ProtectedAdmin>
+      <Route
+        path="dashboard"
+        element={<Dashboard />}
+      />
 
-      <Routes>
-
-        <Route
-  index
-  element={<Navigate to="dashboard" replace />}
-/>
-
-<Route
-  path="dashboard"
-  element={<Dashboard />}
-/>
-
-<Route
+    <Route
   path="users"
   element={<Users />}
 />
 
-<Route
-  path="contractors"
-  element={<Contractors />}
-/>
+      <Route
+        path="contractors"
+        element={<Contractors />}
+      />
 
-<Route
-  path="add-contractor"
-  element={<AddContractor />}
-/>
+      <Route
+        path="add-contractor"
+        element={<AddContractor />}
+      />
 
-<Route
-  path="contractors/:id"
-  element={<ContractorProfile />}
-/>
+      <Route
+        path="contractors/:id"
+        element={<ContractorProfile />}
+      />
 
-<Route
-  path="estimates"
-  element={<Estimates />}
-/>
+      <Route
+        path="estimates"
+        element={<Estimates />}
+      />
 
-<Route
-  path="estimates/:id"
-  element={<EstimateProfile />}
-/>
+      <Route
+        path="estimates/:id"
+        element={<EstimateProfile />}
+      />
 
-<Route
-  path="reviews"
-  element={<Reviews />}
-/>
+      <Route
+        path="reviews"
+        element={<Reviews />}
+      />
 
-<Route
-  path="security"
-  element={<Security />}
-/>
+      <Route
+        path="security"
+        element={<Security />}
+      />
 
-<Route
-  path="analytics"
-  element={<Analytics />}
-/>
+      <Route
+        path="analytics"
+        element={<Analytics />}
+      />
 
-<Route
-  path="settings"
-  element={<Settings />}
-/>
+      <Route
+        path="settings"
+        element={<Settings />}
+      />
 
-        <Route
-          path="/contractors"
-          element={<Contractors />}
-        />
-
-        <Route
-          path="/add-contractor"
-          element={<AddContractor />}
-        />
-
-        <Route
-          path="/contractors/:id"
-          element={<ContractorProfile />}
-        />
-
-        <Route
-          path="/estimates"
-          element={<Estimates />}
-        />
-
-        <Route
-          path="/estimates/:id"
-          element={<EstimateProfile />}
-        />
-
-        <Route
-          path="/reviews"
-          element={<Reviews />}
-        />
-
-        <Route
-          path="/security"
-          element={<Security />}
-        />
-
-        <Route
-          path="/analytics"
-          element={<Analytics />}
-        />
-
-        <Route
-          path="/settings"
-          element={<Settings />}
-        />
-
-      </Routes>
-
-    </ProtectedAdmin>
-
+      <Route
+        path="*"
+        element={
+          <Navigate
+            to="dashboard"
+            replace
+          />
+        }
+      />
+    </Routes>
   );
-
 }

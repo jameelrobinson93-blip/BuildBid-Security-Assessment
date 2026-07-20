@@ -7,13 +7,14 @@ import {
 } from "react-router-dom";
 
 import Navbar from "./components/Navbar";
+import ProtectedRoute from "./components/ProtectedRoute";
+import ProtectedAdmin from "./components/ProtectedAdmin";
 
 /* ===========================
    PUBLIC PAGES
 =========================== */
 
 import Home from "./pages/Home";
-import AddContractor from "./admin/pages/AddContractor";
 import About from "./pages/About";
 import HowItWorks from "./pages/HowItWorks";
 import Login from "./pages/Login";
@@ -21,6 +22,11 @@ import Register from "./pages/Register";
 import RequestEstimate from "./pages/RequestEstimate";
 import Search from "./pages/Search";
 import Reviews from "./pages/Reviews";
+
+/* ===========================
+   PROTECTED USER PAGES
+=========================== */
+
 import Dashboard from "./pages/Dashboard";
 import CreateEstimate from "./pages/CreateEstimate";
 import ContractorDashboard from "./pages/ContractorDashboard";
@@ -29,28 +35,25 @@ import ContractorDashboard from "./pages/ContractorDashboard";
    ADMIN
 =========================== */
 
+import AddContractor from "./admin/pages/AddContractor";
 import AdminLogin from "./admin/AdminLogin";
 import AdminRoutes from "./admin/AdminRoutes";
 
 import "./App.css";
 
 function AppContent() {
-
   const location = useLocation();
 
-  const isAdminPage =
-    location.pathname.startsWith("/admin");
+  const isAdminPage = location.pathname.startsWith("/admin");
 
   return (
-
     <>
-
       {!isAdminPage && <Navbar />}
 
       <Routes>
 
         {/* ===========================
-            PUBLIC
+            PUBLIC ROUTES
         =========================== */}
 
         <Route path="/" element={<Home />} />
@@ -65,11 +68,6 @@ function AppContent() {
         <Route
           path="/estimate"
           element={<RequestEstimate />}
-        />
-
-        <Route
-          path="/create-estimate"
-          element={<CreateEstimate />}
         />
 
         <Route
@@ -92,18 +90,39 @@ function AppContent() {
           element={<Register />}
         />
 
+        {/* ===========================
+            PROTECTED USER ROUTES
+        =========================== */}
+
         <Route
           path="/dashboard"
-          element={<Dashboard />}
+          element={
+            <ProtectedRoute>
+              <Dashboard />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/create-estimate"
+          element={
+            <ProtectedRoute>
+              <CreateEstimate />
+            </ProtectedRoute>
+          }
         />
 
         <Route
           path="/contractor-dashboard"
-          element={<ContractorDashboard />}
+          element={
+            <ProtectedRoute>
+              <ContractorDashboard />
+            </ProtectedRoute>
+          }
         />
 
         {/* ===========================
-            ADMIN
+            ADMIN ROUTES
         =========================== */}
 
         <Route
@@ -123,27 +142,31 @@ function AppContent() {
 
         <Route
           path="/admin/*"
-          element={<AdminRoutes />}
+          element={
+            <ProtectedAdmin>
+              <AdminRoutes />
+            </ProtectedAdmin>
+          }
+        />
+
+        {/* ===========================
+            404 PAGE
+        =========================== */}
+
+        <Route
+          path="*"
+          element={<Navigate to="/" replace />}
         />
 
       </Routes>
-
     </>
-
   );
-
 }
 
 export default function App() {
-
   return (
-
     <BrowserRouter>
-
       <AppContent />
-
     </BrowserRouter>
-
   );
-
 }

@@ -4,75 +4,65 @@ import API_URL from "../../config";
 import AdminLayout from "../AdminLayout";
 
 export default function EstimateProfile() {
-
   const { id } = useParams();
   const navigate = useNavigate();
 
   const [estimate, setEstimate] = useState(null);
   const [contractors, setContractors] = useState([]);
   const [selectedContractor, setSelectedContractor] = useState("");
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
 
   useEffect(() => {
-    loadEstimate();
-    loadContractors();
-  }, []);
+    loadData();
+  }, [id]);
 
-  async function loadEstimate() {
-
+  async function loadData() {
     const token = localStorage.getItem("token");
 
-    try {
-
-      const response = await fetch(
-        `${API_URL}/api/estimates/${id}`,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`
-          }
-        }
-      );
-
-      const data = await response.json();
-
-      if (data.success) {
-        setEstimate(data.estimate);
-      }
-
-    } catch (err) {
-      console.error(err);
+    if (!token) {
+      localStorage.clear();
+      navigate("/admin/login");
+      return;
     }
 
-  }
-
-  async function loadContractors() {
-
-    const token = localStorage.getItem("token");
-
     try {
+      setLoading(true);
 
-      const response = await fetch(
-        `${API_URL}/api/contractors`,
-        {
+      const [estimateResponse, contractorResponse] = await Promise.all([
+        fetch(`${API_URL}/api/estimates/${id}`, {
           headers: {
-            Authorization: `Bearer ${token}`
-          }
-        }
-      );
+            Authorization: `Bearer ${token}`,
+          },
+        }),
+        fetch(`${API_URL}/api/contractors`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }),
+      ]);
 
-      const data = await response.json();
+      const estimateData = await estimateResponse.json();
+      const contractorData = await contractorResponse.json();
 
-      if (data.success) {
-        setContractors(data.contractors);
+      if (estimateResponse.ok && estimateData.success) {
+        setEstimate(estimateData.estimate);
+      } else {
+        setError(estimateData.message || "Estimate not found.");
       }
 
+      if (contractorResponse.ok && contractorData.success) {
+        setContractors(contractorData.contractors);
+      }
     } catch (err) {
       console.error(err);
+      setError("Unable to load estimate information.");
+    } finally {
+      setLoading(false);
     }
-
   }
 
   async function assignContractor() {
-
     if (!selectedContractor) {
       alert("Please select a contractor.");
       return;
@@ -81,155 +71,186 @@ export default function EstimateProfile() {
     const token = localStorage.getItem("token");
 
     try {
-
       const response = await fetch(
         `${API_URL}/api/estimates/${id}/assign`,
         {
           method: "PUT",
           headers: {
             "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`
+            Authorization: `Bearer ${token}`,
           },
           body: JSON.stringify({
-            contractorId: selectedContractor
-          })
+            contractorId: selectedContractor,
+          }),
         }
       );
 
       const data = await response.json();
 
-      if (data.success) {
+      if (response.ok && data.success) {
+        setEstimate((prev) => ({
+          ...prev,
+          contractor_id: Number(selectedContractor),
+          status: "Assigned",
+        }));
+
+        setSelectedContractor("");
 
         alert("Contractor assigned successfully.");
-
-        loadEstimate();
-
       } else {
-
-        alert(data.message);
-
+        alert(data.message || "Unable to assign contractor.");
       }
-
     } catch (err) {
-
       console.error(err);
-
+      alert("Unable to assign contractor.");
     }
-
   }
 
-  if (!estimate) {
-
+  if (loading) {
     return (
       <AdminLayout>
-        <h2>Loading Estimate...</h2>
+        <div className="admin-content">
+          <h2>Loading Estimate...</h2>
+        </div>
       </AdminLayout>
     );
+  }
 
+  if (error) {
+    return (
+      <AdminLayout>
+        <div className="admin-content">
+          <button
+            className="primary-btn"
+            onClick={() => navigate(-1)}
+          >
+            ← Back
+          </button>
+
+          <h2>{error}</h2>
+        </div>
+      </AdminLayout>
+    );
   }
 
   return (
-
     <AdminLayout>
+      <div className="admin-content">
 
-      <button
-        className="primary-btn"
-        onClick={() => navigate(-1)}
-      >
-        ← Back
-      </button>
+        <button
+          className="primary-btn"
+          onClick={() => navigate(-1)}
+        >
+          ← Back
+        </button>
 
-      <div className="page-header">
-        <div>
-          <h1>Estimate Details</h1>
-          <p>Review and assign this estimate.</p>
-        </div>
-      </div>
-
-      <div className="profile-grid">
-
-        <div className="profile-card">
-
-          <h2>Project</h2>
-
-          <p><strong>Type:</strong> {estimate.project_type}</p>
-
-          <p><strong>Status:</strong> {estimate.status}</p>
-
-          <p><strong>Budget:</strong> ${estimate.budget}</p>
-
-          <p><strong>Address:</strong> {estimate.address}</p>
-
-          <p><strong>Description:</strong></p>
-
-          <p>{estimate.description}</p>
-
+        <div className="page-header">
+          <div>
+            <h1>Estimate Details</h1>
+            <p>Review and assign this estimate.</p>
+          </div>
         </div>
 
-        <div className="profile-card">
+        <div className="profile-grid">
 
-          <h2>Assign Contractor</h2>
+          <div className="profile-card">
+            <h2>Project Information</h2>
 
-          <p>
+            <p>
+              <strong>Project Type:</strong>{" "}
+              {estimate.project_type || "Not provided"}
+            </p>
 
-            <strong>Current Contractor:</strong>{" "}
-{
-  contractors.find(
-    c => c.id === estimate.contractor_id
-  )?.company || "Not Assigned"
-}
-
-          </p>
-
-          <p>
-
-            <strong>Created:</strong>{" "}
-
-            {new Date(estimate.created_at).toLocaleString()}
-
-          </p>
-
-          <select
-            className="search-input"
-            value={selectedContractor}
-            onChange={(e) =>
-              setSelectedContractor(e.target.value)
-            }
-          >
-
-            <option value="">
-              Select Contractor
-            </option>
-
-            {contractors.map((contractor) => (
-
-              <option
-                key={contractor.id}
-                value={contractor.id}
+            <p>
+              <strong>Status:</strong>{" "}
+              <span
+                className={`status-badge ${
+                  estimate.status?.toLowerCase() || "pending"
+                }`}
               >
-                {contractor.company}
+                {estimate.status || "Pending"}
+              </span>
+            </p>
+
+            <p>
+              <strong>Budget:</strong>{" "}
+              $
+              {Number(estimate.budget || 0).toLocaleString()}
+            </p>
+
+            <p>
+              <strong>Address:</strong>{" "}
+              {estimate.address || "Not provided"}
+            </p>
+
+            <p>
+              <strong>Description:</strong>
+            </p>
+
+            <p>
+              {estimate.description || "No description provided."}
+            </p>
+          </div>
+
+          <div className="profile-card">
+            <h2>Contractor Assignment</h2>
+
+            <p>
+              <strong>Current Contractor:</strong>{" "}
+              {contractors.find(
+                (c) => c.id === estimate.contractor_id
+              )?.company || "Not Assigned"}
+            </p>
+
+            <p>
+              <strong>Created:</strong>{" "}
+              {estimate.created_at
+                ? new Date(
+                    estimate.created_at
+                  ).toLocaleString()
+                : "Unknown"}
+            </p>
+
+            <select
+              className="search-input"
+              value={selectedContractor}
+              onChange={(e) =>
+                setSelectedContractor(e.target.value)
+              }
+            >
+              <option value="">
+                Select Contractor
               </option>
 
-            ))}
+              {contractors
+                .filter(
+                  (contractor) =>
+                    contractor.status !== "Suspended"
+                )
+                .map((contractor) => (
+                  <option
+                    key={contractor.id}
+                    value={contractor.id}
+                  >
+                    {contractor.company}
+                  </option>
+                ))}
+            </select>
 
-          </select>
+            <br />
+            <br />
 
-          <br />
-          <br />
-
-          <button
-            className="primary-btn"
-            onClick={assignContractor}
-          >
-            Assign Contractor
-          </button>
+            <button
+              className="primary-btn"
+              onClick={assignContractor}
+              disabled={!selectedContractor}
+            >
+              Assign Contractor
+            </button>
+          </div>
 
         </div>
-
       </div>
-
     </AdminLayout>
-
   );
-
 }
