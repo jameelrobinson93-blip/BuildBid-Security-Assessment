@@ -1,6 +1,8 @@
 const express = require("express");
-
 const router = express.Router();
+
+const authMiddleware = require("../middleware/authMiddleware");
+const adminMiddleware = require("../middleware/adminMiddleware");
 
 const securityLog = require("../models/securityLogModel");
 
@@ -8,34 +10,31 @@ const securityLog = require("../models/securityLogModel");
    GET SECURITY LOGS
 =========================== */
 
-router.get("/logs", async (req, res) => {
+router.get(
+  "/logs",
+  authMiddleware,
+  adminMiddleware,
+  async (req, res) => {
+    try {
 
-  try {
+      const logs = await securityLog.getLogs();
 
-    const logs = await securityLog.getLogs();
+      return res.json({
+        success: true,
+        logs,
+      });
 
-    res.json({
+    } catch (err) {
 
-      success: true,
+      console.error("Security Logs:", err);
 
-      logs
+      return res.status(500).json({
+        success: false,
+        message: "Unable to load security logs.",
+      });
 
-    });
-
-  } catch (err) {
-
-    console.error(err);
-
-    res.status(500).json({
-
-      success: false,
-
-      message: "Unable to load security logs."
-
-    });
-
+    }
   }
-
-});
+);
 
 module.exports = router;

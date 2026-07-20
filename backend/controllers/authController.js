@@ -1,7 +1,16 @@
-const securityLog = require("../models/securityLogModel");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
+
+const securityLog = require("../models/securityLogModel");
 const userModel = require("../models/userModel");
+
+/* ===========================
+   CONFIGURATION
+=========================== */
+
+const MAX_LOGIN_ATTEMPTS = 5;
+const LOCK_TIME_MS = 5 * 60 * 1000;
+const SALT_ROUNDS = 10;
 
 /* ===========================
    REGISTER
@@ -9,11 +18,11 @@ const userModel = require("../models/userModel");
 
 exports.register = async (req, res) => {
   try {
+    let { firstName, lastName, email, password } = req.body;
 
-    const { firstName, lastName, email, password } = req.body;
-
-    console.log("\n========== REGISTER REQUEST ==========");
-    console.log(req.body);
+    firstName = firstName?.trim();
+    lastName = lastName?.trim();
+    email = email?.trim().toLowerCase();
 
     if (!firstName || !lastName || !email || !password) {
       return res.status(400).json({
@@ -22,9 +31,14 @@ exports.register = async (req, res) => {
       });
     }
 
-    const existingUser = await userModel.findUserByEmail(email);
+    if (password.length < 8) {
+      return res.status(400).json({
+        success: false,
+        message: "Password must be at least 8 characters."
+      });
+    }
 
-    console.log("Existing User:", existingUser);
+    const existingUser = await userModel.findUserByEmail(email);
 
     if (existingUser) {
       return res.status(400).json({
@@ -33,7 +47,10 @@ exports.register = async (req, res) => {
       });
     }
 
-    const hashedPassword = await bcrypt.hash(password, 10);
+    const hashedPassword = await bcrypt.hash(
+      password,
+      SALT_ROUNDS
+    );
 
     const newUser = await userModel.createUser(
       firstName,
@@ -43,8 +60,11 @@ exports.register = async (req, res) => {
       "customer"
     );
 
-    console.log("✅ USER CREATED");
-    console.table([newUser]);
+    await securityLog.logEvent(
+      email,
+      "REGISTER",
+      req.ip
+    );
 
     return res.status(201).json({
       success: true,
@@ -54,8 +74,7 @@ exports.register = async (req, res) => {
 
   } catch (err) {
 
-    console.error("REGISTER ERROR");
-    console.error(err);
+    console.error("Register Error:", err);
 
     return res.status(500).json({
       success: false,
@@ -73,7 +92,9 @@ exports.login = async (req, res) => {
 
   try {
 
-    const { email, password } = req.body;
+    let { email, password } = req.body;
+
+    email = email?.trim().toLowerCase();
 
     if (!email || !password) {
       return res.status(400).json({
@@ -86,7 +107,11 @@ exports.login = async (req, res) => {
 
     if (!user) {
 
-      console.log("❌ User Not Found:", email);
+      await securityLog.logEvent(
+        email,
+        "FAILED",
+        req.ip
+      );
 
       return res.status(401).json({
         success: false,
@@ -120,9 +145,9 @@ exports.login = async (req, res) => {
         attempts
       );
 
-      if (attempts >= 5) {
+      if (attempts >= MAX_LOGIN_ATTEMPTS) {
 
-        const lockUntil = now + (5 * 60 * 1000);
+        const lockUntil = now + LOCK_TIME_MS;
 
         await userModel.lockAccount(
           user.id,
@@ -137,7 +162,7 @@ exports.login = async (req, res) => {
 
         return res.status(423).json({
           success: false,
-          message: "Too many failed login attempts."
+          message: "Too many failed login attempts. Account locked for 5 minutes."
         });
 
       }
@@ -150,7 +175,7 @@ exports.login = async (req, res) => {
 
       return res.status(401).json({
         success: false,
-        message: `Invalid email or password. (${attempts}/5)`
+        message: `Invalid email or password. (${attempts}/${MAX_LOGIN_ATTEMPTS})`
       });
 
     }
@@ -163,6 +188,10 @@ exports.login = async (req, res) => {
       req.ip
     );
 
+    if (!process.env.JWT_SECRET) {
+      throw new Error("JWT_SECRET is not configured.");
+    }
+
     const token = jwt.sign(
       {
         id: user.id,
@@ -171,11 +200,9 @@ exports.login = async (req, res) => {
       },
       process.env.JWT_SECRET,
       {
-        expiresIn: process.env.JWT_EXPIRES_IN
+        expiresIn: process.env.JWT_EXPIRES_IN || "24h"
       }
     );
-
-    console.log("✅ LOGIN SUCCESS:", email);
 
     return res.json({
       success: true,
@@ -191,7 +218,7 @@ exports.login = async (req, res) => {
 
   } catch (err) {
 
-    console.error(err);
+    console.error("Login Error:", err);
 
     return res.status(500).json({
       success: false,

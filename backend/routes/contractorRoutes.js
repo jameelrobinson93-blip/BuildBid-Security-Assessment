@@ -1,60 +1,58 @@
 const express = require("express");
-
 const router = express.Router();
+
+const authMiddleware = require("../middleware/authMiddleware");
+const adminMiddleware = require("../middleware/adminMiddleware");
 
 const contractorController = require("../controllers/contractorController");
 
 /* ===========================
-   GET ALL CONTRACTORS
+   PUBLIC ROUTES
 =========================== */
 
+// View all contractors
 router.get(
   "/",
-  contractorController.getAllContractors
+  contractorController.getContractors
 );
 
-/* ===========================
-   ADD CONTRACTOR
-=========================== */
-
-router.post(
-  "/",
-  contractorController.addContractor
-);
-
-/* ===========================
-   UPDATE CONTRACTOR STATUS
-=========================== */
-
-router.put(
-  "/:id/status",
-  contractorController.updateContractorStatus
-);
-
-/* ===========================
-   GET SINGLE CONTRACTOR
-=========================== */
-
+// View a single contractor
 router.get(
   "/:id",
   contractorController.getContractorById
 );
 
-/* ===========================
-   GET CONTRACTOR JOBS
-=========================== */
-
+// View contractor jobs
 router.get(
   "/jobs/:contractorId",
   contractorController.getContractorJobs
 );
 
 /* ===========================
-   DELETE CONTRACTOR
+   ADMIN ROUTES
 =========================== */
 
+// Add contractor
+router.post(
+  "/",
+  authMiddleware,
+  adminMiddleware,
+  contractorController.addContractor
+);
+
+// Update contractor status
+router.put(
+  "/:id/status",
+  authMiddleware,
+  adminMiddleware,
+  contractorController.updateContractorStatus
+);
+
+// Delete contractor
 router.delete(
   "/:id",
+  authMiddleware,
+  adminMiddleware,
   contractorController.deleteContractor
 );
 

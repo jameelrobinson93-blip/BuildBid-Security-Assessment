@@ -9,12 +9,24 @@ const verifyAdmin = require("../middleware/verifyAdmin");
 =========================== */
 
 // Get all users
-router.get("/users", verifyAdmin, adminController.getAllUsers);
+router.get(
+  "/users",
+  verifyAdmin,
+  adminController.getAllUsers
+);
 
-// Get single user
-router.get("/users/:id", verifyAdmin, adminController.getUserById);
+// Get a single user
+router.get(
+  "/users/:id",
+  verifyAdmin,
+  adminController.getUserById
+);
 
-// Delete user
-router.delete("/users/:id", verifyAdmin, adminController.deleteUser);
+// Delete a user
+router.delete(
+  "/users/:id",
+  verifyAdmin,
+  adminController.deleteUser
+);
 
 module.exports = router;

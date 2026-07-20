@@ -1,73 +1,53 @@
 const contractorModel = require("../models/contractorModel");
 
 /* ===========================
-   PUBLIC CONTRACTORS
+   GET PUBLIC CONTRACTORS
 =========================== */
 
 exports.getContractors = async (req, res) => {
-
   try {
-
-    const contractors =
-      await contractorModel.getContractors();
+    const contractors = await contractorModel.getContractors();
 
     return res.json({
-
       success: true,
-
-      contractors
-
+      contractors,
     });
 
   } catch (err) {
 
-    console.error(err);
+    console.error("Get Contractors:", err);
 
     return res.status(500).json({
-
       success: false,
-
-      message: "Unable to load contractors."
-
+      message: "Unable to load contractors.",
     });
 
   }
-
 };
 
 /* ===========================
-   ADMIN - GET ALL CONTRACTORS
+   ADMIN GET ALL CONTRACTORS
 =========================== */
 
 exports.getAllContractors = async (req, res) => {
-
   try {
-
-    const contractors =
-      await contractorModel.getAllContractors();
+    const contractors = await contractorModel.getAllContractors();
 
     return res.json({
-
       success: true,
-
-      contractors
-
+      contractors,
     });
 
   } catch (err) {
 
-    console.error(err);
+    console.error("Get All Contractors:", err);
 
     return res.status(500).json({
-
       success: false,
-
-      message: "Unable to load contractors."
-
+      message: "Unable to load contractors.",
     });
 
   }
-
 };
 
 /* ===========================
@@ -75,48 +55,33 @@ exports.getAllContractors = async (req, res) => {
 =========================== */
 
 exports.getContractorById = async (req, res) => {
-
   try {
-
-    const contractor =
-      await contractorModel.getContractorById(
-        req.params.id
-      );
+    const contractor = await contractorModel.getContractorById(
+      req.params.id
+    );
 
     if (!contractor) {
-
       return res.status(404).json({
-
         success: false,
-
-        message: "Contractor not found."
-
+        message: "Contractor not found.",
       });
-
     }
 
     return res.json({
-
       success: true,
-
-      contractor
-
+      contractor,
     });
 
   } catch (err) {
 
-    console.error(err);
+    console.error("Get Contractor:", err);
 
     return res.status(500).json({
-
       success: false,
-
-      message: "Unable to load contractor."
-
+      message: "Unable to load contractor.",
     });
 
   }
-
 };
 
 /* ===========================
@@ -124,36 +89,72 @@ exports.getContractorById = async (req, res) => {
 =========================== */
 
 exports.getContractorJobs = async (req, res) => {
-
   try {
-
-    const jobs =
-      await contractorModel.getContractorJobs(
-        req.params.contractorId
-      );
+    const jobs = await contractorModel.getContractorJobs(
+      req.params.contractorId
+    );
 
     return res.json({
-
       success: true,
-
-      jobs
-
+      jobs,
     });
 
   } catch (err) {
 
-    console.error(err);
+    console.error("Get Contractor Jobs:", err);
 
     return res.status(500).json({
-
       success: false,
-
-      message: "Unable to load contractor jobs."
-
+      message: "Unable to load contractor jobs.",
     });
 
   }
+};
 
+/* ===========================
+   ADD CONTRACTOR
+=========================== */
+
+exports.addContractor = async (req, res) => {
+  try {
+
+    const {
+      company,
+      specialty,
+      city,
+      phone
+    } = req.body;
+
+    if (!company || !specialty || !city || !phone) {
+      return res.status(400).json({
+        success: false,
+        message: "Please complete all required fields.",
+      });
+    }
+
+    const contractor = await contractorModel.addContractor({
+      company,
+      specialty,
+      city,
+      phone,
+    });
+
+    return res.status(201).json({
+      success: true,
+      message: "Contractor added successfully.",
+      contractor,
+    });
+
+  } catch (err) {
+
+    console.error("Add Contractor:", err);
+
+    return res.status(500).json({
+      success: false,
+      message: "Unable to add contractor.",
+    });
+
+  }
 };
 
 /* ===========================
@@ -161,44 +162,46 @@ exports.getContractorJobs = async (req, res) => {
 =========================== */
 
 exports.updateContractorStatus = async (req, res) => {
-
   try {
 
     const { status } = req.body;
 
+    if (!status) {
+      return res.status(400).json({
+        success: false,
+        message: "Status is required.",
+      });
+    }
+
     const contractor =
       await contractorModel.updateContractorStatus(
-
         req.params.id,
-
         status
-
       );
 
+    if (!contractor) {
+      return res.status(404).json({
+        success: false,
+        message: "Contractor not found.",
+      });
+    }
+
     return res.json({
-
       success: true,
-
       message: "Contractor updated successfully.",
-
-      contractor
-
+      contractor,
     });
 
   } catch (err) {
 
-    console.error(err);
+    console.error("Update Contractor:", err);
 
     return res.status(500).json({
-
       success: false,
-
-      message: "Unable to update contractor."
-
+      message: "Unable to update contractor.",
     });
 
   }
-
 };
 
 /* ===========================
@@ -206,87 +209,32 @@ exports.updateContractorStatus = async (req, res) => {
 =========================== */
 
 exports.deleteContractor = async (req, res) => {
-
   try {
 
-    await contractorModel.deleteContractor(
+    const deleted = await contractorModel.deleteContractor(
       req.params.id
     );
 
-    return res.json({
-
-      success: true,
-
-      message: "Contractor deleted successfully."
-
-    });
-
-  } catch (err) {
-
-    console.error(err);
-
-    return res.status(500).json({
-
-      success: false,
-
-      message: "Unable to delete contractor."
-
-    });
-
-  }
-
-};
-/* ===========================
-   ADD CONTRACTOR
-=========================== */
-
-exports.addContractor = async (req, res) => {
-
-  try {
-
-    const {
-      company,
-      category,
-      city,
-      phone,
-      email,
-      description
-    } = req.body;
-
-    const contractor =
-      await contractorModel.addContractor({
-
-        company,
-        category,
-        city,
-        phone,
-        email,
-        description
-
+    if (!deleted) {
+      return res.status(404).json({
+        success: false,
+        message: "Contractor not found.",
       });
+    }
 
     return res.json({
-
       success: true,
-
-      message: "Contractor added successfully.",
-
-      contractor
-
+      message: "Contractor deleted successfully.",
     });
 
   } catch (err) {
 
-    console.error(err);
+    console.error("Delete Contractor:", err);
 
     return res.status(500).json({
-
       success: false,
-
-      message: "Unable to add contractor."
-
+      message: "Unable to delete contractor.",
     });
 
   }
-
 };

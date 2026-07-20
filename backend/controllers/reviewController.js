@@ -1,79 +1,98 @@
 const reviewModel = require("../models/reviewModel");
 const securityLog = require("../models/securityLogModel");
 
-// Add Review
-exports.addReview = (req, res) => {
+/* ===========================
+   XSS DETECTION
+=========================== */
 
-  const { name, rating, comment } = req.body;
+const XSS_PATTERN =
+  /<script|javascript:|onerror=|onload=|<iframe|<img|<svg|<object|<embed|<link|<style/i;
 
-  if (!name || !rating || !comment) {
-    return res.status(400).json({
-      success: false,
-      message: "Please complete all fields."
-    });
-  }
+/* ===========================
+   ADD REVIEW
+=========================== */
 
-  // Basic XSS detection
-  const xssPattern = /<script|javascript:|onerror=|onload=|<iframe|<img/i;
+exports.addReview = async (req, res) => {
+  try {
+    let { name, rating, comment } = req.body;
 
-  if (xssPattern.test(comment)) {
+    name = name?.trim();
+    comment = comment?.trim();
+    rating = Number(rating);
 
-    console.log("");
-    console.log("🚨 XSS ATTEMPT DETECTED 🚨");
-    console.log("User:", name);
-    console.log("Comment:", comment);
-    console.log("==========================");
+    if (!name || !comment || Number.isNaN(rating)) {
+      return res.status(400).json({
+        success: false,
+        message: "Please complete all fields.",
+      });
+    }
 
-    securityLog.logEvent(
+    if (rating < 1 || rating > 5) {
+      return res.status(400).json({
+        success: false,
+        message: "Rating must be between 1 and 5.",
+      });
+    }
+
+    if (XSS_PATTERN.test(comment)) {
+      await securityLog.logEvent(
+        name,
+        "XSS_BLOCKED",
+        req.ip
+      );
+
+      return res.status(400).json({
+        success: false,
+        message: "Potential malicious content detected. Review rejected.",
+      });
+    }
+
+    const review = await reviewModel.createReview(
       name,
-      "XSS_BLOCKED",
-      req.ip,
-      () => {}
+      rating,
+      comment
     );
 
-    return res.status(400).json({
+    return res.status(201).json({
+      success: true,
+      message: "Review submitted successfully.",
+      review,
+    });
+
+  } catch (err) {
+
+    console.error("Add Review:", err);
+
+    return res.status(500).json({
       success: false,
-      message: "Potential malicious content detected. Review rejected."
+      message: "Unable to save review.",
     });
 
   }
-
-  reviewModel.createReview(
-    name,
-    rating,
-    comment,
-    (err) => {
-
-      if (err) {
-
-        return res.status(500).json({
-          success: false,
-          message: "Unable to save review."
-        });
-
-      }
-
-      res.json({
-        success: true,
-        message: "Review submitted."
-      });
-
-    }
-  );
-
 };
 
-// Get Reviews
-exports.getReviews = (req, res) => {
+/* ===========================
+   GET REVIEWS
+=========================== */
 
-  reviewModel.getReviews((err, rows) => {
+exports.getReviews = async (req, res) => {
+  try {
 
-    if (err) {
-      return res.status(500).json(err);
-    }
+    const reviews = await reviewModel.getReviews();
 
-    res.json(rows);
+    return res.json({
+      success: true,
+      reviews,
+    });
 
-  });
+  } catch (err) {
 
+    console.error("Get Reviews:", err);
+
+    return res.status(500).json({
+      success: false,
+      message: "Unable to load reviews.",
+    });
+
+  }
 };

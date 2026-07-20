@@ -1,35 +1,32 @@
 const pool = require("../database/postgres");
 
 /* ===========================
-   GET PUBLIC CONTRACTORS
-=========================== */
-
-async function getContractors() {
-
-  const result = await pool.query(`
-    SELECT *
-    FROM contractors
-    ORDER BY company ASC
-  `);
-
-  return result.rows;
-
-}
-
-/* ===========================
    GET ALL CONTRACTORS
 =========================== */
 
 async function getAllContractors() {
-
   const result = await pool.query(`
-    SELECT *
+    SELECT
+      id,
+      company,
+      specialty,
+      city,
+      phone,
+      rating,
+      status
     FROM contractors
     ORDER BY company ASC
   `);
 
   return result.rows;
+}
 
+/* ===========================
+   PUBLIC CONTRACTORS
+=========================== */
+
+async function getContractors() {
+  return getAllContractors();
 }
 
 /* ===========================
@@ -37,18 +34,23 @@ async function getAllContractors() {
 =========================== */
 
 async function getContractorById(id) {
-
   const result = await pool.query(
     `
-    SELECT *
+    SELECT
+      id,
+      company,
+      specialty,
+      city,
+      phone,
+      rating,
+      status
     FROM contractors
     WHERE id = $1
     `,
     [id]
   );
 
-  return result.rows[0];
-
+  return result.rows[0] || null;
 }
 
 /* ===========================
@@ -56,10 +58,19 @@ async function getContractorById(id) {
 =========================== */
 
 async function getContractorJobs(contractorId) {
-
   const result = await pool.query(
     `
-    SELECT *
+    SELECT
+      id,
+      name,
+      email,
+      phone,
+      project_type,
+      description,
+      budget,
+      address,
+      status,
+      created_at
     FROM estimates
     WHERE contractor_id = $1
     ORDER BY created_at DESC
@@ -68,7 +79,6 @@ async function getContractorJobs(contractorId) {
   );
 
   return result.rows;
-
 }
 
 /* ===========================
@@ -76,7 +86,6 @@ async function getContractorJobs(contractorId) {
 =========================== */
 
 async function addContractor(contractor) {
-
   const result = await pool.query(
     `
     INSERT INTO contractors
@@ -97,18 +106,24 @@ async function addContractor(contractor) {
       5.0,
       'Active'
     )
-    RETURNING *
+    RETURNING
+      id,
+      company,
+      specialty,
+      city,
+      phone,
+      rating,
+      status
     `,
     [
       contractor.company,
       contractor.specialty,
       contractor.city,
-      contractor.phone
+      contractor.phone,
     ]
   );
 
   return result.rows[0];
-
 }
 
 /* ===========================
@@ -116,19 +131,30 @@ async function addContractor(contractor) {
 =========================== */
 
 async function updateContractorStatus(id, status) {
+  const allowedStatuses = ["Active", "Suspended"];
+
+  if (!allowedStatuses.includes(status)) {
+    throw new Error("Invalid contractor status.");
+  }
 
   const result = await pool.query(
     `
     UPDATE contractors
     SET status = $1
     WHERE id = $2
-    RETURNING *
+    RETURNING
+      id,
+      company,
+      specialty,
+      city,
+      phone,
+      rating,
+      status
     `,
     [status, id]
   );
 
-  return result.rows[0];
-
+  return result.rows[0] || null;
 }
 
 /* ===========================
@@ -136,31 +162,24 @@ async function updateContractorStatus(id, status) {
 =========================== */
 
 async function deleteContractor(id) {
-
-  await pool.query(
+  const result = await pool.query(
     `
     DELETE FROM contractors
     WHERE id = $1
+    RETURNING id
     `,
     [id]
   );
 
+  return result.rows[0] || null;
 }
 
 module.exports = {
-
   getContractors,
-
   getAllContractors,
-
   getContractorById,
-
   getContractorJobs,
-
   addContractor,
-
   updateContractorStatus,
-
-  deleteContractor
-
+  deleteContractor,
 };

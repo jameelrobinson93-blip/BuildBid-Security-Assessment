@@ -3,7 +3,9 @@ require("dotenv").config();
 const express = require("express");
 const cors = require("cors");
 const helmet = require("helmet");
+const compression = require("compression");
 const rateLimit = require("express-rate-limit");
+
 const pool = require("./database/postgres");
 
 // ===========================
@@ -28,18 +30,20 @@ app.disable("x-powered-by");
 
 app.use(helmet());
 
+app.use(compression());
+
 const limiter = rateLimit({
   windowMs: 15 * 60 * 1000,
   max: 1000,
   standardHeaders: true,
   legacyHeaders: false,
   message: {
-    error: "Too many requests. Please try again later."
+    success: false,
+    message: "Too many requests. Please try again later."
   }
 });
 
-// Enable if desired
-// app.use(limiter);
+app.use(limiter);
 
 /* ===========================
    CORS
@@ -73,38 +77,41 @@ app.use(
    BODY PARSER
 =========================== */
 
-app.use(express.json());
+app.use(
+  express.json({
+    limit: "1mb"
+  })
+);
+
+app.use(
+  express.urlencoded({
+    extended: true,
+    limit: "1mb"
+  })
+);
 
 /* ===========================
    API ROUTES
 =========================== */
 
-// Authentication
 app.use("/api/auth", authRoutes);
 
-// Contractors
 app.use("/api/contractors", contractorRoutes);
 
-// Contractor Dashboard
 app.use("/api/contractor", contractorRoutes);
 
-// Estimates
 app.use("/api/estimates", estimateRoutes);
 
-// Reviews
 app.use("/api/reviews", reviewRoutes);
 
-// Security Dashboard
 app.use("/api/security", securityRoutes);
 
-// Dashboard Statistics
 app.use("/api/dashboard", dashboardRoutes);
 
-// Admin
 app.use("/api/admin", adminUserRoutes);
 
 /* ===========================
-   HOME ROUTE
+   HOME
 =========================== */
 
 app.get("/", (req, res) => {
@@ -117,37 +124,52 @@ app.get("/", (req, res) => {
 });
 
 /* ===========================
-   DATABASE TEST
+   HEALTH CHECK
 =========================== */
 
-app.get("/api/postgres-test", async (req, res) => {
-  try {
-    const result = await pool.query(`
-      SELECT
-        current_database(),
-        current_user,
-        NOW()
-    `);
-
-    res.json({
-      success: true,
-      database: result.rows[0]
-    });
-
-  } catch (err) {
-
-    console.error(err);
-
-    res.status(500).json({
-      success: false,
-      error: err.message
-    });
-
-  }
+app.get("/health", (req, res) => {
+  res.status(200).json({
+    success: true,
+    status: "healthy",
+    uptime: process.uptime(),
+    timestamp: new Date().toISOString()
+  });
 });
 
 /* ===========================
-   404 HANDLER
+   DEVELOPMENT DATABASE TEST
+=========================== */
+
+if (process.env.NODE_ENV !== "production") {
+  app.get("/api/postgres-test", async (req, res) => {
+    try {
+      const result = await pool.query(`
+        SELECT
+          current_database(),
+          current_user,
+          NOW()
+      `);
+
+      res.json({
+        success: true,
+        database: result.rows[0]
+      });
+
+    } catch (err) {
+
+      console.error(err);
+
+      res.status(500).json({
+        success: false,
+        error: err.message
+      });
+
+    }
+  });
+}
+
+/* ===========================
+   404
 =========================== */
 
 app.use((req, res) => {
@@ -184,7 +206,11 @@ app.listen(PORT, () => {
   console.log("========================================");
   console.log("🚀 BuildBid Backend Started");
   console.log(`🌐 Server Running on Port ${PORT}`);
-  console.log("🛡️ PostgreSQL Connected");
+  console.log(`🌍 Environment: ${process.env.NODE_ENV || "development"}`);
+  console.log("🛡 Helmet Enabled");
+  console.log("📦 Compression Enabled");
+  console.log("🚦 Rate Limiter Enabled");
+  console.log("🗄 PostgreSQL Connected");
   console.log("========================================");
   console.log("");
 
