@@ -1,36 +1,41 @@
-import { useEffect, useState } from "react";
-import API_URL from "../config.js";
+/* ==========================================================
+   BUILDBID
+   PUBLIC REVIEWS PAGE
+   PART 1
+========================================================== */
+
+import { useEffect, useMemo, useState } from "react";
+import API_URL from "../config";
 import "./Reviews.css";
 
 function Reviews() {
 
+  /* ==========================================
+      STATE
+  ========================================== */
+
   const [reviews, setReviews] = useState([]);
 
+  const [loading, setLoading] = useState(true);
+
+  const [error, setError] = useState("");
+
+  const [submitting, setSubmitting] = useState(false);
+
   const [form, setForm] = useState({
-    name: "",
     rating: 5,
-    comment: ""
+    comment: "",
   });
 
-  async function loadReviews() {
+  const token = localStorage.getItem("token");
 
-    try {
+  const user = JSON.parse(
+    localStorage.getItem("user") || "{}"
+  );
 
-      const response = await fetch(
-        `${API_URL}/api/reviews`
-      );
-
-      const data = await response.json();
-
-      setReviews(data);
-
-    } catch (error) {
-
-      console.log(error);
-
-    }
-
-  }
+  /* ==========================================
+      LOAD REVIEWS
+  ========================================== */
 
   useEffect(() => {
 
@@ -38,138 +43,409 @@ function Reviews() {
 
   }, []);
 
-  function handleChange(e) {
-
-    setForm({
-      ...form,
-      [e.target.name]: e.target.value
-    });
-
-  }
-
-  async function submitReview() {
+  async function loadReviews() {
 
     try {
 
+      setLoading(true);
+
       const response = await fetch(
-        `${API_URL}/api/reviews`,
-        {
-          method: "POST",
-
-          headers: {
-            "Content-Type": "application/json"
-          },
-
-          body: JSON.stringify(form)
-        }
+        `${API_URL}/api/reviews`
       );
 
       const data = await response.json();
 
-      alert(data.message);
+      setReviews(Array.isArray(data) ? data : []);
 
-      setForm({
-        name: "",
-        rating: 5,
-        comment: ""
-      });
+    } catch (err) {
 
-      loadReviews();
+      console.error(err);
 
-    } catch (error) {
+      setError("Unable to load reviews.");
 
-      console.log(error);
+    } finally {
+
+      setLoading(false);
 
     }
 
   }
 
-return (
+  /* ==========================================
+      HANDLE FORM
+  ========================================== */
 
-  <div className="reviews-page">
+  function handleChange(e) {
 
-    <div className="reviews-header">
+    setForm({
 
-      <h1>Homeowner Reviews</h1>
+      ...form,
 
-      <p>
-        Read what homeowners are saying about their BuildBid experience,
-        or leave a review after your project is complete.
-      </p>
+      [e.target.name]: e.target.value,
 
-    </div>
+    });
 
-    <div className="review-form">
+  }
 
-      <h2>Leave a Review</h2>
+  /* ==========================================
+      SUBMIT REVIEW
+  ========================================== */
 
-      <input
-        name="name"
-        placeholder="Your Name"
-        value={form.name}
-        onChange={handleChange}
-      />
+  async function submitReview() {
 
-      <select
-        name="rating"
-        value={form.rating}
-        onChange={handleChange}
-      >
-        <option value="5">★★★★★</option>
-        <option value="4">★★★★☆</option>
-        <option value="3">★★★☆☆</option>
-        <option value="2">★★☆☆☆</option>
-        <option value="1">★☆☆☆☆</option>
-      </select>
+    if (!token) {
 
-      <textarea
-        name="comment"
-        rows="6"
-        placeholder="Tell us about your experience..."
-        value={form.comment}
-        onChange={handleChange}
-      />
+      alert("Please log in before leaving a review.");
 
-      <button onClick={submitReview}>
-        Submit Review
-      </button>
+      return;
 
-    </div>
+    }
 
-    <div className="reviews-grid">
+    if (!form.comment.trim()) {
 
-      {reviews.map((review) => (
+      alert("Please write a review.");
 
-        <div
-          className="review-card"
-          key={review.id}
-        >
+      return;
 
-          <div className="review-stars">
+    }
 
-            {"★".repeat(review.rating)}
+    try {
 
-          </div>
+      setSubmitting(true);
 
-          <p className="review-comment">
+      const response = await fetch(
 
-            "{review.comment}"
+        `${API_URL}/api/reviews`,
 
-          </p>
+        {
 
-          <h3>{review.name}</h3>
+          method: "POST",
 
-          <small>{review.created_at}</small>
+          headers: {
+
+            "Content-Type": "application/json",
+
+            Authorization: `Bearer ${token}`,
+
+          },
+
+          body: JSON.stringify({
+
+            rating: Number(form.rating),
+
+            comment: form.comment,
+
+          }),
+
+        }
+
+      );
+
+      const data = await response.json();
+
+      if (!response.ok) {
+
+        throw new Error(
+
+          data.message ||
+
+          "Unable to submit review."
+
+        );
+
+      }
+
+      alert("Thank you for your review!");
+
+      setForm({
+
+        rating: 5,
+
+        comment: "",
+
+      });
+
+      loadReviews();
+
+    } catch (err) {
+
+      console.error(err);
+
+      alert(err.message);
+
+    } finally {
+
+      setSubmitting(false);
+
+    }
+
+  }
+
+  /* ==========================================
+      REVIEW STATISTICS
+  ========================================== */
+
+  const averageRating = useMemo(() => {
+
+    if (!reviews.length) return 0;
+
+    const total = reviews.reduce(
+
+      (sum, review) =>
+
+        sum + Number(review.rating),
+
+      0
+
+    );
+
+    return (total / reviews.length).toFixed(1);
+
+  }, [reviews]);
+
+  /* ==========================================
+      START PAGE
+  ========================================== */
+
+  return (
+
+    <div className="reviews-page">
+
+      <section className="reviews-hero">
+
+        <h1>
+
+          Trusted By Homeowners
+
+        </h1>
+
+        <p>
+
+          Read verified customer reviews and
+          discover why homeowners choose
+          BuildBid for trusted contractors.
+
+        </p>
+
+      </section>
+
+      <div className="reviews-stats">
+
+        <div className="stat-card">
+
+          <h2>{averageRating}</h2>
+
+          <span>Average Rating</span>
 
         </div>
 
-      ))}
+        <div className="stat-card">
+
+          <h2>{reviews.length}</h2>
+
+          <span>Total Reviews</span>
+
+        </div>
+
+        <div className="stat-card">
+
+          <h2>100%</h2>
+
+          <span>Verified Customers</span>
+
+        </div>
+
+      </div>
+
+      <section className="review-form">
+
+        <h2>
+
+          Leave a Review
+
+        </h2>
+
+        {!token && (
+
+          <div className="login-warning">
+
+            Please log in before submitting
+            a review.
+
+          </div>
+
+        )}
+
+        {token && (
+
+          <>
+
+            <div className="logged-in-user">
+
+              Logged in as
+
+              <strong>
+
+                {" "}
+                {user.first_name} {user.last_name}
+
+              </strong>
+
+            </div>
+
+            <select
+
+              name="rating"
+
+              value={form.rating}
+
+              onChange={handleChange}
+
+            >
+
+              <option value="5">★★★★★</option>
+
+              <option value="4">★★★★☆</option>
+
+              <option value="3">★★★☆☆</option>
+
+              <option value="2">★★☆☆☆</option>
+
+              <option value="1">★☆☆☆☆</option>
+
+            </select>
+
+            <textarea
+
+              name="comment"
+
+              rows="6"
+
+              placeholder="Tell other homeowners about your experience..."
+
+              value={form.comment}
+
+              onChange={handleChange}
+
+            />
+
+            <button
+
+              onClick={submitReview}
+
+              disabled={submitting}
+
+            >
+
+              {submitting
+
+                ? "Submitting..."
+
+                : "Submit Review"}
+
+            </button>
+
+          </>
+
+        )}
+
+      </section>
+
+      <section className="reviews-grid">
+                {loading ? (
+
+          <div className="loading">
+
+            Loading reviews...
+
+          </div>
+
+        ) : error ? (
+
+          <div className="error-message">
+
+            {error}
+
+          </div>
+
+        ) : reviews.length === 0 ? (
+
+          <div className="empty-reviews">
+
+            <h3>No reviews yet.</h3>
+
+            <p>
+
+              Be the first homeowner to share your
+              experience with BuildBid.
+
+            </p>
+
+          </div>
+
+        ) : (
+
+          reviews.map((review) => (
+
+            <div
+
+              className="review-card"
+
+              key={review.id}
+
+            >
+
+              <div className="review-header">
+
+                <div>
+
+                  <h3>
+
+                    {review.first_name && review.last_name
+                      ? `${review.first_name} ${review.last_name}`
+                      : review.name || "Verified Customer"}
+
+                  </h3>
+
+                  <div className="review-stars">
+
+                    {"★".repeat(Number(review.rating))}
+
+                    {"☆".repeat(5 - Number(review.rating))}
+
+                  </div>
+
+                </div>
+
+                <span className="review-date">
+
+                  {review.created_at
+                    ? new Date(
+                        review.created_at
+                      ).toLocaleDateString()
+                    : ""}
+
+                </span>
+
+              </div>
+
+              <p className="review-comment">
+
+                {review.comment}
+
+              </p>
+
+            </div>
+
+          ))
+
+        )}
+
+      </section>
 
     </div>
 
-  </div>
-
-);
+  );
 
 }
 
