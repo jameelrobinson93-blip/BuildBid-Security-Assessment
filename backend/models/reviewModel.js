@@ -1,8 +1,8 @@
 const pool = require("../database/postgres");
 
-/* ===========================
+/* =====================================================
    CREATE REVIEW
-=========================== */
+===================================================== */
 
 async function createReview(name, rating, comment) {
   const reviewRating = Number(rating);
@@ -46,12 +46,13 @@ async function createReview(name, rating, comment) {
   return result.rows[0];
 }
 
-/* ===========================
+/* =====================================================
    GET ALL REVIEWS
-=========================== */
+===================================================== */
 
 async function getReviews() {
-  const result = await pool.query(`
+  const result = await pool.query(
+    `
     SELECT
       id,
       name,
@@ -60,7 +61,8 @@ async function getReviews() {
       created_at
     FROM reviews
     ORDER BY created_at DESC
-  `);
+    `
+  );
 
   return result.rows;
 }

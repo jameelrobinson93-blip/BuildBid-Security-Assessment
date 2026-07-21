@@ -23,6 +23,12 @@ const adminUserRoutes = require("./routes/adminUserRoutes");
 const app = express();
 
 /* ===========================
+   TRUST PROXY (RENDER)
+=========================== */
+
+app.set("trust proxy", 1);
+
+/* ===========================
    SECURITY
 =========================== */
 
